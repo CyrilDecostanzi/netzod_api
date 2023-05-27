@@ -10,6 +10,7 @@ import { ImageModule } from './image/image.module';
 import { CategoryModule } from './category/category.module';
 import { RoleModule } from './role/role.module';
 import { CommentModule } from './comment/comment.module';
+import { User } from './user/entities/user.entity';
 
 @Module({
   imports: [
@@ -23,8 +24,7 @@ import { CommentModule } from './comment/comment.module';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        // entities: [],
-        autoLoadEntities: true,
+        entities: [User],
         synchronize: true,
       }),
       inject: [ConfigService],
