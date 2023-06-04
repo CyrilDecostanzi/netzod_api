@@ -11,7 +11,8 @@ import { CategoryModule } from './category/category.module';
 import { RoleModule } from './role/role.module';
 import { CommentModule } from './comment/comment.module';
 import { User } from './user/entities/user.entity';
-
+import { Category } from './category/entities/category.entity';
+import { Post } from './post/entities/post.entity';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -24,7 +25,7 @@ import { User } from './user/entities/user.entity';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        entities: [User],
+        entities: [User, Category, Post],
         synchronize: true,
       }),
       inject: [ConfigService],
