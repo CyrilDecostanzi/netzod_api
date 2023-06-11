@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import {
   IsString,
   IsEmail,
@@ -10,6 +11,8 @@ import {
   IsOptional,
 } from 'class-validator';
 import { IsEmailUniqueValidator } from '../../lib/validators/email-validator';
+
+@Injectable()
 export class CreateUserDto {
   @IsString()
   @Length(1, 50, {

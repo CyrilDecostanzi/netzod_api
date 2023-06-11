@@ -1,4 +1,10 @@
-import { HttpException, Injectable, HttpStatus, Logger } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  HttpStatus,
+  Logger,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -11,13 +17,12 @@ import * as path from 'path';
 export class UserService {
   logger = new Logger(UserService.name);
   constructor(
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
+    @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     try {
-      const user = new User();
+      const user = new User(<Partial<User>>{});
       user.username = createUserDto.username;
       user.email = createUserDto.email;
       user.password = createUserDto.password;
@@ -47,7 +52,10 @@ export class UserService {
   }
 
   async findOne(id: number): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['posts'],
+    });
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -60,23 +68,27 @@ export class UserService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { id } });
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    try {
+      const user = await this.userRepository.findOne({ where: { id } });
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      const userWithSameEmail = await this.findByEmail(updateUserDto.email);
+      if (userWithSameEmail && userWithSameEmail.id !== id) {
+        const msg = 'Cette adresse email est déjà utilisée';
+        throw new BadRequestException(msg);
+      }
+
+      return await this.userRepository.save({
+        ...user,
+        ...updateUserDto,
+      });
+    } catch (error) {
+      const currentFilePath = path.resolve(__filename);
+      logError(this.logger, error, currentFilePath);
+      return error.response;
     }
-
-    user.username = updateUserDto.username || user.username;
-    user.email = updateUserDto.email || user.email;
-    user.password = updateUserDto.password || user.password;
-    user.status = updateUserDto.status || user.status;
-    user.role_id = updateUserDto.role_id || user.role_id;
-    user.mobile = updateUserDto.mobile || user.mobile;
-    user.firstname = updateUserDto.firstname || user.firstname;
-    user.lastname = updateUserDto.lastname || user.lastname;
-    user.avatar = updateUserDto.avatar || user.avatar;
-    user.bio = updateUserDto.bio || user.bio;
-
-    return await this.userRepository.save(user);
   }
 
   async remove(id: number): Promise<void> {
@@ -85,6 +97,6 @@ export class UserService {
       throw new Error('User not found');
     }
 
-    await this.userRepository.remove(user);
+    await this.userRepository.softRemove(user);
   }
 }

@@ -1,9 +1,13 @@
+import { Exclude, Expose } from 'class-transformer';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   OneToMany,
   Unique,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 import { Post } from '../../post/entities/post.entity';
 
@@ -14,6 +18,9 @@ export const { ACTIVE, INACTIVE } = {
 
 @Entity()
 export class User {
+  constructor(partial: Partial<User>) {
+    Object.assign(this, partial);
+  }
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -37,9 +44,11 @@ export class User {
   mobile: string;
 
   @Column({ length: 50 })
+  @Expose({ groups: ['userDetails'] })
   firstname: string;
 
   @Column({ length: 50 })
+  @Exclude()
   lastname: string;
 
   @Column({ length: 250, nullable: true })
@@ -47,6 +56,15 @@ export class User {
 
   @Column({ length: 600, nullable: true })
   bio: string;
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
+
+  @DeleteDateColumn({ nullable: true })
+  deleted_at: Date;
 
   @OneToMany(() => Post, (post) => post.user)
   posts: Post[];

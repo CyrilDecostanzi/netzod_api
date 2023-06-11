@@ -5,12 +5,15 @@ import { useContainer } from 'class-validator';
 import { formatErrors } from './lib/exceptions/format-exception';
 import { WinstonModule } from 'nest-winston';
 import { loggerOptions } from './lib/logger/logger';
-
+import moment from 'moment';
+import 'moment-timezone';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const logger = WinstonModule.createLogger(loggerOptions);
-  app.useLogger(logger);
+  moment.tz.setDefault('Europe/Paris');
+
+  // const logger = WinstonModule.createLogger(loggerOptions);
+  // app.useLogger(logger);
 
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 

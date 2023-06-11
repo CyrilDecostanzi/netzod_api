@@ -4,6 +4,9 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  CreateDateColumn,
+  DeleteDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { Category } from '../../category/entities/category.entity';
@@ -13,7 +16,7 @@ export class Post {
   id: number;
 
   @Column({ name: 'user_id', type: 'bigint' })
-  userId: number;
+  user_id: number;
 
   @Column({ length: 150 })
   title: string;
@@ -31,10 +34,19 @@ export class Post {
   status: number;
 
   @Column({ name: 'category_id', type: 'smallint' })
-  categoryId: number;
+  category_id: number;
 
   @Column({ name: 'published_at', type: 'datetime' })
-  publishedAt: Date;
+  published_at: Date;
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
+
+  @DeleteDateColumn({ nullable: true })
+  deleted_at: Date;
 
   @ManyToOne(() => User, (user) => user.posts)
   @JoinColumn({ name: 'user_id' })

@@ -5,6 +5,9 @@ import {
   OneToMany,
   ManyToOne,
   JoinColumn,
+  CreateDateColumn,
+  DeleteDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Post } from '../../post/entities/post.entity';
 
@@ -21,6 +24,15 @@ export class Category {
 
   @Column({ name: 'category_id', type: 'bigint' })
   categoryId: number;
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
+
+  @DeleteDateColumn({ nullable: true })
+  deleted_at: Date;
 
   @OneToMany(() => Post, (post) => post.category)
   posts: Post[];
