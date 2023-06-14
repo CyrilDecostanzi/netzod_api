@@ -13,6 +13,7 @@ import { CommentModule } from './comment/comment.module';
 import { User } from './user/entities/user.entity';
 import { Category } from './category/entities/category.entity';
 import { Post } from './post/entities/post.entity';
+import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -37,6 +38,7 @@ import { Post } from './post/entities/post.entity';
     CategoryModule,
     RoleModule,
     CommentModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

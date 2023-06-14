@@ -29,22 +29,27 @@ export class User {
 
   @Unique(['email'])
   @Column({ length: 100 })
+  @Expose({ groups: ['user', 'admin'] })
   email: string;
 
   @Column({ length: 30 })
+  @Exclude()
+  @Expose({ groups: ['user', 'admin'] })
   password: string;
 
-  @Column({ type: 'tinyint', width: 2 })
+  @Column({ type: 'tinyint', width: 2, default: ACTIVE })
+  @Expose({ groups: ['admin'] })
   status: number;
 
-  @Column({ type: 'tinyint', width: 1 })
+  @Column({ type: 'tinyint', width: 1, default: 1 })
+  @Expose({ groups: ['admin'] })
   role_id: number;
 
   @Column({ length: 15, nullable: true })
+  @Expose({ groups: ['user', 'admin'] })
   mobile: string;
 
   @Column({ length: 50 })
-  @Expose({ groups: ['userDetails'] })
   firstname: string;
 
   @Column({ length: 50 })
@@ -55,15 +60,19 @@ export class User {
   avatar: string;
 
   @Column({ length: 600, nullable: true })
+  @Expose({ groups: ['user_detail'] })
   bio: string;
 
   @CreateDateColumn()
+  @Expose({ groups: ['admin'] })
   created_at: Date;
 
   @UpdateDateColumn()
+  @Expose({ groups: ['admin'] })
   updated_at: Date;
 
   @DeleteDateColumn({ nullable: true })
+  @Expose({ groups: ['admin'] })
   deleted_at: Date;
 
   @OneToMany(() => Post, (post) => post.user)

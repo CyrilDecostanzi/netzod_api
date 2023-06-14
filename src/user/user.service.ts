@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ACTIVE, User } from './entities/user.entity';
+import { User } from './entities/user.entity';
 import { logError } from '../lib/logger/logger';
 import * as path from 'path';
 
@@ -22,17 +22,7 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     try {
-      const user = new User(<Partial<User>>{});
-      user.username = createUserDto.username;
-      user.email = createUserDto.email;
-      user.password = createUserDto.password;
-      user.status = ACTIVE;
-      user.role_id = 1;
-      user.mobile = createUserDto.mobile;
-      user.firstname = createUserDto.firstname;
-      user.lastname = createUserDto.lastname;
-      user.avatar = createUserDto.avatar;
-      user.bio = createUserDto.bio;
+      const user = new User(createUserDto);
 
       return await this.userRepository.save(user);
     } catch (error) {
@@ -74,7 +64,8 @@ export class UserService {
         throw new Error('User not found');
       }
 
-      const userWithSameEmail = await this.findByEmail(updateUserDto.email);
+      // Check if email is already taken
+      const userWithSameEmail = await this.findByEmail(user.email);
       if (userWithSameEmail && userWithSameEmail.id !== id) {
         const msg = 'Cette adresse email est déjà utilisée';
         throw new BadRequestException(msg);

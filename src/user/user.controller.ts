@@ -21,6 +21,9 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @SerializeOptions({
+    groups: ['user', 'admin'],
+  })
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
@@ -32,7 +35,7 @@ export class UserController {
   }
 
   @SerializeOptions({
-    groups: ['userDetails'],
+    groups: ['user_detail'],
   })
   @Get(':id')
   findOne(@Param('id') id: string) {

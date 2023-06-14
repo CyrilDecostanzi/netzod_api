@@ -69,7 +69,9 @@ export class CreateUserDto {
   lastname: string;
 
   @IsString()
-  @Length(1, 250)
+  @Length(1, 250, {
+    message: "L'avatar doit contenir entre 1 et 250 caractères",
+  })
   @IsOptional()
   avatar: string;
 
