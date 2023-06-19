@@ -11,6 +11,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { logError } from '../lib/logger/logger';
+import bcrypt from 'bcrypt';
 import * as path from 'path';
 
 @Injectable()
@@ -23,7 +24,8 @@ export class UserService {
   async create(createUserDto: CreateUserDto): Promise<User> {
     try {
       const user = new User(createUserDto);
-
+      const salt = bcrypt.genSaltSync(+process.env.SALT_ROUNDS);
+      user.password = bcrypt.hashSync(user.password, salt);
       return await this.userRepository.save(user);
     } catch (error) {
       const currentFilePath = path.resolve(__filename);
@@ -57,6 +59,10 @@ export class UserService {
     return user || null;
   }
 
+  async findByName(username: string): Promise<User | undefined> {
+    return this.userRepository.findOne({ where: { username } });
+  }
+
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
     try {
       const user = await this.userRepository.findOne({ where: { id } });
@@ -65,12 +71,16 @@ export class UserService {
       }
 
       // Check if email is already taken
-      const userWithSameEmail = await this.findByEmail(user.email);
+      const userWithSameEmail = await this.findByEmail(updateUserDto.email);
+
       if (userWithSameEmail && userWithSameEmail.id !== id) {
         const msg = 'Cette adresse email est déjà utilisée';
         throw new BadRequestException(msg);
       }
-
+      if (updateUserDto.password) {
+        const salt = bcrypt.genSaltSync(+process.env.SALT_ROUNDS);
+        updateUserDto.password = bcrypt.hashSync(updateUserDto.password, salt);
+      }
       return await this.userRepository.save({
         ...user,
         ...updateUserDto,

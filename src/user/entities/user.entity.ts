@@ -32,7 +32,7 @@ export class User {
   @Expose({ groups: ['user', 'admin'] })
   email: string;
 
-  @Column({ length: 30 })
+  @Column({ length: 150 })
   @Exclude()
   @Expose({ groups: ['user', 'admin'] })
   password: string;
