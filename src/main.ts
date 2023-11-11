@@ -12,10 +12,15 @@ async function bootstrap() {
 
   moment.tz.setDefault('Europe/Paris');
 
-  // const logger = WinstonModule.createLogger(loggerOptions);
-  // app.useLogger(logger);
+  const logger = WinstonModule.createLogger(loggerOptions);
+  app.useLogger(logger);
 
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
+
+  app.enableCors({
+    origin: ['http://localhost:3001', 'http://localhost:3000'],
+    credentials: true,
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -25,6 +30,6 @@ async function bootstrap() {
       },
     }),
   );
-  await app.listen(3000);
+  await app.listen(3001);
 }
 bootstrap();

@@ -29,38 +29,37 @@ export class User {
 
   @Unique(['email'])
   @Column({ length: 100 })
-  @Expose({ groups: ['user', 'admin'] })
+  @Expose({ groups: ['auth', 'admin'] })
   email: string;
 
   @Column({ length: 150 })
   @Exclude()
-  @Expose({ groups: ['user', 'admin'] })
   password: string;
 
   @Column({ type: 'tinyint', width: 2, default: ACTIVE })
-  @Expose({ groups: ['admin'] })
+  @Exclude()
   status: number;
 
   @Column({ type: 'tinyint', width: 1, default: 1 })
-  @Expose({ groups: ['admin'] })
+  @Exclude()
   role_id: number;
 
   @Column({ length: 15, nullable: true })
-  @Expose({ groups: ['user', 'admin'] })
+  @Expose({ groups: ['auth', 'admin'] })
   mobile: string;
 
   @Column({ length: 50 })
   firstname: string;
 
   @Column({ length: 50 })
-  @Exclude()
+  @Expose({ groups: ['auth', 'admin'] })
   lastname: string;
 
   @Column({ length: 250, nullable: true })
   avatar: string;
 
   @Column({ length: 600, nullable: true })
-  @Expose({ groups: ['user_detail'] })
+  @Expose({ groups: ['auth', 'user_detail'] })
   bio: string;
 
   @CreateDateColumn()

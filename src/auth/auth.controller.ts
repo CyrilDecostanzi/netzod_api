@@ -1,13 +1,41 @@
-import { Body, Controller, Post, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  UseInterceptors,
+  ClassSerializerInterceptor,
+  SerializeOptions,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { AuthGuard } from './auth.guard';
+import { UserService } from '../user/user.service';
 
 @Controller('auth')
+@UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private userService: UserService,
+  ) {}
 
-  @HttpCode(HttpStatus.OK)
+  @SerializeOptions({
+    groups: ['auth'],
+  })
   @Post('login')
-  signIn(@Body() signInDto: Record<string, any>) {
+  signIn(@Body() signInDto: any) {
     return this.authService.signIn(signInDto.email, signInDto.password);
+  }
+
+  @SerializeOptions({
+    groups: ['auth'],
+  })
+  @UseGuards(AuthGuard)
+  @Get('profile')
+  getProfile(@Request() req) {
+    const user = this.userService.findOne(req.user.sub);
+    return user;
   }
 }
