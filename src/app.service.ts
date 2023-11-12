@@ -9,7 +9,7 @@ export interface TestResponse {
 export class AppService {
   getHello(): TestResponse {
     const response: TestResponse = {
-      message: 'Test numero 2',
+      message: 'Welcome to the NetZod API',
       status: 200,
     };
     return response;

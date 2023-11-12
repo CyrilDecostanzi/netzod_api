@@ -1,7 +1,7 @@
 import {
   Controller,
   Get,
-  Post,
+  // Post,
   Body,
   Patch,
   Param,
@@ -11,18 +11,20 @@ import {
   ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
+// import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Role } from '../role/entities/role.enum';
+import { Roles } from '../lib/decorators/roles.decorator';
 
 @Controller('users')
 @UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
-  }
+  // @Post()
+  // create(@Body() createUserDto: CreateUserDto) {
+  //   return this.userService.create(createUserDto);
+  // }
 
   @Get()
   findAll() {
@@ -33,6 +35,7 @@ export class UserController {
     groups: ['user_detail'],
   })
   @Get(':id')
+  @Roles(Role.ADMIN)
   findOne(@Param('id') id: string) {
     return this.userService.findOne(+id);
   }
@@ -43,6 +46,7 @@ export class UserController {
   }
 
   @Delete(':id')
+  @Roles(Role.ADMIN)
   remove(@Param('id') id: string) {
     return this.userService.remove(+id);
   }

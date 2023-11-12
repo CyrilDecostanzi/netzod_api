@@ -8,8 +8,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Post } from '../../post/entities/post.entity';
+import { Role } from '../../role/entities/role.entity';
 
 export const { ACTIVE, INACTIVE } = {
   ACTIVE: 1,
@@ -76,4 +79,8 @@ export class User {
 
   @OneToMany(() => Post, (post) => post.user)
   posts: Post[];
+
+  @ManyToOne(() => Role, (role) => role.users)
+  @JoinColumn({ name: 'role_id' })
+  role: Role;
 }

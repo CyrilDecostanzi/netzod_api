@@ -8,12 +8,12 @@ import { PostModule } from './post/post.module';
 import { TagModule } from './tag/tag.module';
 import { ImageModule } from './image/image.module';
 import { CategoryModule } from './category/category.module';
-import { RoleModule } from './role/role.module';
 import { CommentModule } from './comment/comment.module';
 import { User } from './user/entities/user.entity';
 import { Category } from './category/entities/category.entity';
 import { Post } from './post/entities/post.entity';
 import { AuthModule } from './auth/auth.module';
+import { Role } from './role/entities/role.entity';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -26,7 +26,7 @@ import { AuthModule } from './auth/auth.module';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        entities: [User, Category, Post],
+        entities: [User, Category, Post, Role],
         synchronize: true,
       }),
       inject: [ConfigService],
@@ -36,7 +36,6 @@ import { AuthModule } from './auth/auth.module';
     TagModule,
     ImageModule,
     CategoryModule,
-    RoleModule,
     CommentModule,
     AuthModule,
   ],
