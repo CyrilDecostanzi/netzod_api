@@ -13,6 +13,8 @@ import { User } from './entities/user.entity';
 import { logError } from '../lib/logger/logger';
 import bcrypt from 'bcrypt';
 import * as path from 'path';
+import { Role } from '../role/entities/role.enum';
+import { UserStatus } from './entities/user.status.enum';
 
 @Injectable()
 export class UserService {
@@ -24,8 +26,13 @@ export class UserService {
   async create(createUserDto: CreateUserDto): Promise<User> {
     try {
       const user = new User(createUserDto);
+
+      user.status = UserStatus.ACTIVE;
+      user.role_id = Role.ADMIN;
+
       const salt = bcrypt.genSaltSync(+process.env.SALT_ROUNDS);
       user.password = bcrypt.hashSync(user.password, salt);
+
       return await this.userRepository.save(user);
     } catch (error) {
       const currentFilePath = path.resolve(__filename);

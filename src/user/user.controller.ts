@@ -27,6 +27,7 @@ export class UserController {
   // }
 
   @Get()
+  @Roles(Role.ADMIN)
   findAll() {
     return this.userService.findAll();
   }
@@ -35,7 +36,6 @@ export class UserController {
     groups: ['user_detail'],
   })
   @Get(':id')
-  @Roles(Role.ADMIN)
   findOne(@Param('id') id: string) {
     return this.userService.findOne(+id);
   }

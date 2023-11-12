@@ -3,9 +3,6 @@ import {
   IsString,
   IsEmail,
   Length,
-  IsInt,
-  Min,
-  Max,
   Validate,
   Matches,
   IsOptional,
@@ -31,23 +28,11 @@ export class CreateUserDto {
   email: string;
 
   @IsString()
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/, {
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\S]{8,}$/, {
     message:
       'Le mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre',
   })
   password: string;
-
-  @IsInt()
-  @Min(0)
-  @Max(99)
-  @IsOptional()
-  status: number;
-
-  @IsInt()
-  @Min(0)
-  @Max(9)
-  @IsOptional()
-  role_id: number;
 
   @IsString()
   @Matches(/^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/, {
