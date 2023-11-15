@@ -13,7 +13,7 @@ import { User } from './entities/user.entity';
 import { logError } from '../lib/logger/logger';
 import bcrypt from 'bcrypt';
 import * as path from 'path';
-import { UserRepository } from './repositories/user.repository';
+import { UserHelper } from './helpers/user.helper';
 
 @Injectable()
 export class UserService {
@@ -38,7 +38,7 @@ export class UserService {
    */
   async create(createUserDto: CreateUserDto): Promise<User> {
     try {
-      const user = UserRepository.createUser(createUserDto);
+      const user = UserHelper.createUser(createUserDto);
       return await this.userRepository.save(user);
     } catch (error) {
       const currentFilePath = path.resolve(__filename);
@@ -47,6 +47,7 @@ export class UserService {
       throw new HttpException(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
   /**
    * This method is used to retrieve all users. It returns an empty array if no users are found.
    * @returns {Promise<User[]>} - All users

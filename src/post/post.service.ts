@@ -15,10 +15,10 @@ export class PostService {
   constructor(
     @InjectRepository(Post) private postRepository: Repository<Post>,
   ) {}
-  create(createPostDto: CreatePostDto) {
+  async create(createPostDto: CreatePostDto) {
     try {
       const post = new Post(createPostDto);
-      return this.postRepository.save(post);
+      return await this.postRepository.save(post);
     } catch (error) {
       const currentFilePath = path.resolve(__filename);
       logError(this.logger, error, currentFilePath);
@@ -27,19 +27,38 @@ export class PostService {
     }
   }
 
-  findAll() {
-    return `This action returns all post`;
+  async findAll() {
+    const posts = await this.postRepository.find();
+    if (!posts) {
+      throw new HttpException('No posts found', HttpStatus.NOT_FOUND);
+    }
+    return posts;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} post`;
+  async findOne(id: number) {
+    const post = await this.postRepository.findOne({ where: { id } });
+    if (!post) {
+      throw new HttpException('No post found', HttpStatus.NOT_FOUND);
+    }
+    return post;
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
+  async update(id: number, updatePostDto: UpdatePostDto) {
+    try {
+      const post = await this.postRepository.findOne({ where: { id } });
+      if (!post) {
+        throw new HttpException('No post found', HttpStatus.NOT_FOUND);
+      }
+      return await this.postRepository.save({ ...post, ...updatePostDto });
+    } catch (error) {
+      const currentFilePath = path.resolve(__filename);
+      logError(this.logger, error, currentFilePath);
+      const message = "Une erreur est survenue lors de l'enregistrement";
+      throw new HttpException(message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
-  remove(id: number) {
+  async remove(id: number) {
     return `This action removes a #${id} post`;
   }
 }

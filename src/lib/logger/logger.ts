@@ -29,7 +29,7 @@ export const logError = (
   message = 'Erreur 500' as string,
 ) => {
   logger.error(`
-Message : ${message}
+File : ${message}
 Name : ${error.name}
 Code : ${error.code}
 Message : ${error.message}

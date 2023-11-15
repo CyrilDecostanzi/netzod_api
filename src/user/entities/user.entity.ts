@@ -39,7 +39,7 @@ export class User {
   @Exclude()
   password: string;
 
-  @Column({ type: 'tinyint', width: 2, default: ACTIVE })
+  @Column({ type: 'tinyint', width: 2 })
   @Exclude()
   status: number;
 

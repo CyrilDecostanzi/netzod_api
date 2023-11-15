@@ -36,7 +36,7 @@ export class Post {
   @Column({ type: 'tinyint', width: 2 })
   status: number;
 
-  @Column({ name: 'category_id', type: 'smallint' })
+  @Column({ name: 'category_id', type: 'smallint', nullable: true })
   category_id: number;
 
   @Column({ name: 'published_at', type: 'datetime' })
