@@ -13,7 +13,13 @@ import { IS_PUBLIC_KEY } from '../lib/decorators/public.decorator';
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(private jwtService: JwtService, private reflector: Reflector) {}
-
+  /**
+   * This method is used to check if the user is authenticated. If not, it throws an UnauthorizedException.
+   * @param {ExecutionContext} context - The context of the request
+   * @throws UnauthorizedException
+   * @see https://docs.nestjs.com/guards
+   * @returns {Promise<boolean>} - True if the user is authenticated, false otherwise
+   */
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),

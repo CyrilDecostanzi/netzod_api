@@ -1,28 +1,24 @@
 import { Injectable } from '@nestjs/common';
-import { IsString, IsInt, Min, Max, IsOptional } from 'class-validator';
+import { IsString, IsInt, Min, Max, IsOptional, Length } from 'class-validator';
 
 @Injectable()
 export class CreatePostDto {
-  @IsString()
-  @Min(10)
-  @Max(150)
+  @IsString({ message: 'Le titre doit être une chaîne de caractères' })
+  @Length(1, 50, { message: 'Le titre doit faire entre 1 et 50 caractères' })
   title: string;
 
-  @IsString()
-  @Min(50)
+  @IsString({ message: 'Le contenu doit être une chaîne de caractères' })
+  @Length(1, 250, {
+    message: 'Le contenu doit faire entre 1 et 250 caractères',
+  })
   content: string;
 
-  @IsString()
-  @Min(5)
-  @Max(250)
+  @IsString({ message: 'La couverture doit être une chaîne de caractères' })
+  @Length(1, 250, {
+    message: 'La couverture doit faire entre 1 et 250 caractères',
+  })
   @IsOptional()
   cover: string;
-
-  @IsInt()
-  @Min(0)
-  @Max(99)
-  @IsOptional()
-  status: number;
 
   @IsInt()
   category_id: number;

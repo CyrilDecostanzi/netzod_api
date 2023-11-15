@@ -7,7 +7,12 @@ import { UserService } from '../user/user.service';
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector, private userService: UserService) {}
-
+  /**
+   * This method is used to check if the user has the required role. If not, it throws an UnauthorizedException.
+   * @param {ExecutionContext} context - The context of the request
+   * @throws UnauthorizedException
+   * @returns {Promise<boolean>} - True if the user has the required role, false otherwise
+   */
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
       context.getHandler(),

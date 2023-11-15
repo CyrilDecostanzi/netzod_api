@@ -23,7 +23,7 @@ export class Category {
   image: string;
 
   @Column({ name: 'category_id', type: 'bigint' })
-  categoryId: number;
+  category_id: number;
 
   @CreateDateColumn()
   created_at: Date;

@@ -12,6 +12,9 @@ import { User } from '../../user/entities/user.entity';
 import { Category } from '../../category/entities/category.entity';
 @Entity()
 export class Post {
+  constructor(partial: Partial<Post>) {
+    Object.assign(this, partial);
+  }
   @PrimaryGeneratedColumn()
   id: number;
 

@@ -11,10 +11,19 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signIn(email: string, pass: string): Promise<any> {
+  /**
+   * This method is used to validate a user's credentials
+   * and return a JWT token.
+   * @param email
+   * @param password
+   * @returns {Promise<{user: User, access_token: string}>} - The user and the JWT token to be used in the Authorization header.
+   * @throws BadRequestException
+   * @see https://docs.nestjs.com/security/authentication#implementing-passport-jwt
+   */
+  async signIn(email: string, password: string): Promise<any> {
     const user = await this.userService.findByEmail(email);
     const passwordIsValid = user
-      ? bcrypt.compareSync(pass, user.password)
+      ? bcrypt.compareSync(password, user.password)
       : false;
 
     if (!passwordIsValid || !user) {
@@ -30,6 +39,13 @@ export class AuthService {
     };
   }
 
+  /**
+   * This method is used to create a new user and return a JWT token.
+   * @param createUserDto
+   * @returns {Promise<{newUser: User, access_token: string}>} - The new user and the JWT token to be used in the Authorization header.
+   * @throws BadRequestException
+   * @see https://docs.nestjs.com/security/authentication#implementing-passport-jwt
+   */
   async signUp(createUserDto: CreateUserDto): Promise<any> {
     const newUser = await this.userService.create(createUserDto);
     const payload = { sub: newUser.id, username: newUser.username };
