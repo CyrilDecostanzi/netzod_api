@@ -13,6 +13,7 @@ import {
 } from 'typeorm';
 import { Post } from '../../post/entities/post.entity';
 import { Role } from '../../role/entities/role.entity';
+import { Comment } from '../../comment/entities/comment.entity';
 
 export const { ACTIVE, INACTIVE } = {
   ACTIVE: 1,
@@ -83,4 +84,7 @@ export class User {
   @ManyToOne(() => Role, (role) => role.users)
   @JoinColumn({ name: 'role_id' })
   role: Role;
+
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comments: Comment[];
 }

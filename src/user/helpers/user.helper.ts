@@ -8,6 +8,7 @@ export class UserHelper {
   /**
    * This method is used to create a new user. It hashes the password and sets the user's role to 'USER'.
    * @param createUserDto - The user to be created
+   * @memberof UserHelper
    * @returns {Promise<User>} - The user created
    */
   static createUser(createUserDto: CreateUserDto): User {

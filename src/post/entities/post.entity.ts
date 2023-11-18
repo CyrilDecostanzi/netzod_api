@@ -7,9 +7,12 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { Category } from '../../category/entities/category.entity';
+import { Comment } from '../../comment/entities/comment.entity';
+import { Image } from '../../image/entities/image.entity';
 @Entity()
 export class Post {
   constructor(partial: Partial<Post>) {
@@ -58,4 +61,10 @@ export class Post {
   @ManyToOne(() => Category, (category) => category.posts)
   @JoinColumn({ name: 'category_id' })
   category: Category;
+
+  @OneToMany(() => Comment, (comment) => comment.post)
+  comments: Comment[];
+
+  @OneToMany(() => Image, (image) => image.post)
+  images: Image[];
 }

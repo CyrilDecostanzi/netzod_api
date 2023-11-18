@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UseInterceptors } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Post } from './entities/post.entity';
@@ -7,23 +7,28 @@ import { Repository } from 'typeorm';
 import { logError } from '../lib/logger/logger';
 import * as path from 'path';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { PostHelper } from './helpers/post.helper';
 
 @Injectable()
+@UseInterceptors()
 export class PostService {
   logger: Logger = new Logger(PostService.name);
 
   constructor(
     @InjectRepository(Post) private postRepository: Repository<Post>,
   ) {}
-  async create(createPostDto: CreatePostDto) {
+  async create(createPostDto: CreatePostDto, req: any) {
     try {
-      const post = new Post(createPostDto);
+      const post = PostHelper.createPost(createPostDto, req);
       return await this.postRepository.save(post);
     } catch (error) {
       const currentFilePath = path.resolve(__filename);
       logError(this.logger, error, currentFilePath);
       const message = "Une erreur est survenue lors de l'enregistrement";
-      throw new HttpException(message, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        error.message ?? message,
+        error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -36,7 +41,10 @@ export class PostService {
   }
 
   async findOne(id: number) {
-    const post = await this.postRepository.findOne({ where: { id } });
+    const post = await this.postRepository.findOne({
+      where: { id },
+      relations: ['user', 'category.tags'],
+    });
     if (!post) {
       throw new HttpException('No post found', HttpStatus.NOT_FOUND);
     }
@@ -54,11 +62,28 @@ export class PostService {
       const currentFilePath = path.resolve(__filename);
       logError(this.logger, error, currentFilePath);
       const message = "Une erreur est survenue lors de l'enregistrement";
-      throw new HttpException(message, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        error.message ?? message,
+        error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   async remove(id: number) {
-    return `This action removes a #${id} post`;
+    try {
+      const post = await this.postRepository.findOne({ where: { id } });
+      if (!post) {
+        throw new HttpException('No post found', HttpStatus.NOT_FOUND);
+      }
+      return await this.postRepository.softRemove(post);
+    } catch (error) {
+      const currentFilePath = path.resolve(__filename);
+      logError(this.logger, error, currentFilePath);
+      const message = 'Une erreur est survenue lors de la suppression';
+      throw new HttpException(
+        error.message ?? message,
+        error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
