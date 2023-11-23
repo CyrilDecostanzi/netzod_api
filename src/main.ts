@@ -7,6 +7,7 @@ import { WinstonModule } from 'nest-winston';
 import { loggerOptions } from './lib/logger/logger';
 import moment from 'moment';
 import 'moment-timezone';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -18,7 +19,7 @@ async function bootstrap() {
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   app.enableCors({
-    origin: ['http://localhost:3000'],
+    origin: [process.env.FRONT_URL],
     credentials: true,
   });
 

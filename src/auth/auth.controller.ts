@@ -6,7 +6,7 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
   SerializeOptions,
-  Request,
+  Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
@@ -34,7 +34,7 @@ export class AuthController {
     groups: ['auth'],
   })
   @Get('profile')
-  getProfile(@Request() req) {
+  getProfile(@Req() req) {
     const user = this.userService.findOne(req.user.sub);
     return user;
   }

@@ -85,6 +85,9 @@ export class User {
   @JoinColumn({ name: 'role_id' })
   role: Role;
 
-  @OneToMany(() => Comment, (comment) => comment.user)
+  @OneToMany(() => Comment, (comment) => comment.user, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   comments: Comment[];
 }
