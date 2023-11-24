@@ -26,7 +26,7 @@ USER appuser
 RUN npm run build
 
 # Expose le port sur lequel l'application s'exécutera
-EXPOSE 3000
+EXPOSE 3001
 
 # Définit la commande pour exécuter l'application
 CMD ["node", "build/main"]
