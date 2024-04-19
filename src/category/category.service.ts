@@ -1,7 +1,6 @@
 import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { Post } from '../post/entities/post.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { logError } from '../lib/logger/logger';
@@ -18,8 +17,8 @@ export class CategoryService {
 
   async create(createCategoryDto: CreateCategoryDto) {
     try {
-      const post = new Post(createCategoryDto);
-      return await this.categoryRepository.save(post);
+      const category = new Category(createCategoryDto);
+      return await this.categoryRepository.save(category);
     } catch (error) {
       const currentFilePath = path.resolve(__filename);
       logError(this.logger, error, currentFilePath);

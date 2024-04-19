@@ -7,9 +7,15 @@ import { WinstonModule } from 'nest-winston';
 import { loggerOptions } from './lib/logger/logger';
 import moment from 'moment';
 import 'moment-timezone';
+import express from 'express';
+import * as path from 'path';
+import { ExpressAdapter } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const server = express();
+  server.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
 
   moment.tz.setDefault('Europe/Paris');
 
@@ -19,7 +25,7 @@ async function bootstrap() {
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   app.enableCors({
-    origin: [process.env.FRONT_URL],
+    origin: [process.env.FRONT_URL, 'http://127.0.0.1:5500'],
     credentials: true,
   });
 

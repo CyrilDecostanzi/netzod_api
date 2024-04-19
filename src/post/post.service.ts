@@ -7,7 +7,9 @@ import { Repository } from 'typeorm';
 import { logError } from '../lib/logger/logger';
 import * as path from 'path';
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { PostHelper } from './helpers/post.helper';
+import { PostLib } from './lib/post.lib';
+import { User } from '../user';
+import { Role } from '../role/entities/role.enum';
 
 @Injectable()
 @UseInterceptors()
@@ -16,17 +18,22 @@ export class PostService {
 
   constructor(
     @InjectRepository(Post) private postRepository: Repository<Post>,
+    @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
   async create(createPostDto: CreatePostDto, req: any) {
     try {
-      const post = PostHelper.createPost(createPostDto, req);
-      return await this.postRepository.save(post);
+      const post = PostLib.createPost(createPostDto, req);
+      // return the newly created post with its relations category and user
+      const newPost = await this.postRepository.save(post);
+      return await this.postRepository.findOne({
+        where: { id: newPost.id },
+        relations: ['user', 'category.tags'],
+      });
     } catch (error) {
       const currentFilePath = path.resolve(__filename);
       logError(this.logger, error, currentFilePath);
-      const message = "Une erreur est survenue lors de l'enregistrement";
       throw new HttpException(
-        error.message ?? message,
+        error.message ?? "Une erreur est survenue lors de l'enregistrement",
         error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -51,19 +58,42 @@ export class PostService {
     return post;
   }
 
-  async update(id: number, updatePostDto: UpdatePostDto) {
+  /**
+   *
+   * @param id
+   * @param updatePostDto
+   * @param req
+   * @returns {Promise<Post>}
+   * @memberof PostService
+   * @example PostService.update(id, updatePostDto, req);
+   */
+  async update(id: number, updatePostDto: UpdatePostDto, req: any) {
     try {
-      const post = await this.postRepository.findOne({ where: { id } });
+      const post = await this.postRepository.findOne({
+        where: { id },
+        relations: ['user'],
+      });
+
       if (!post) {
         throw new HttpException('No post found', HttpStatus.NOT_FOUND);
+      }
+
+      const user = await this.userRepository.findOne({
+        where: { id: req.user.sub },
+      });
+
+      if (user.id !== post.user.id && user.role_id !== Role.ADMIN) {
+        throw new HttpException(
+          "Vous n'êtes pas autorisé à modifier ce post",
+          HttpStatus.UNAUTHORIZED,
+        );
       }
       return await this.postRepository.save({ ...post, ...updatePostDto });
     } catch (error) {
       const currentFilePath = path.resolve(__filename);
       logError(this.logger, error, currentFilePath);
-      const message = "Une erreur est survenue lors de l'enregistrement";
       throw new HttpException(
-        error.message ?? message,
+        error.message ?? "Une erreur est survenue lors de l'enregistrement",
         error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -79,9 +109,8 @@ export class PostService {
     } catch (error) {
       const currentFilePath = path.resolve(__filename);
       logError(this.logger, error, currentFilePath);
-      const message = 'Une erreur est survenue lors de la suppression';
       throw new HttpException(
-        error.message ?? message,
+        error.message ?? 'Une erreur est survenue lors de la suppression',
         error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

@@ -21,6 +21,9 @@ import { Roles } from '../lib/decorators/roles.decorator';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @SerializeOptions({
+    groups: ['admin'],
+  })
   @Get()
   @Roles(Role.ADMIN)
   findAll() {

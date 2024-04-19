@@ -13,7 +13,7 @@ import { User } from './entities/user.entity';
 import { logError } from '../lib/logger/logger';
 import bcrypt from 'bcrypt';
 import * as path from 'path';
-import { UserHelper } from './helpers/user.helper';
+import { UserLib } from './lib/user.lib';
 
 @Injectable()
 export class UserService {
@@ -38,7 +38,7 @@ export class UserService {
    */
   async create(createUserDto: CreateUserDto): Promise<User> {
     try {
-      const user = UserHelper.createUser(createUserDto);
+      const user = UserLib.createUser(createUserDto);
       return await this.userRepository.save(user);
     } catch (error) {
       const currentFilePath = path.resolve(__filename);

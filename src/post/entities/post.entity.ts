@@ -13,6 +13,7 @@ import { User } from '../../user/entities/user.entity';
 import { Category } from '../../category/entities/category.entity';
 import { Comment } from '../../comment/entities/comment.entity';
 import { Image } from '../../image/entities/image.entity';
+import { Exclude } from 'class-transformer';
 @Entity()
 export class Post {
   constructor(partial: Partial<Post>) {
@@ -22,6 +23,7 @@ export class Post {
   id: number;
 
   @Column({ name: 'user_id', type: 'bigint' })
+  @Exclude()
   user_id: number;
 
   @Column({ length: 150 })
@@ -39,10 +41,11 @@ export class Post {
   @Column({ type: 'tinyint', width: 2 })
   status: number;
 
-  @Column({ name: 'category_id', type: 'smallint', nullable: true })
+  @Column({ name: 'category_id', type: 'smallint' })
+  @Exclude()
   category_id: number;
 
-  @Column({ name: 'published_at', type: 'datetime' })
+  @Column({ name: 'published_at', type: 'datetime', nullable: true })
   published_at: Date;
 
   @CreateDateColumn()

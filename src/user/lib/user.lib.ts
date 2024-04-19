@@ -4,7 +4,7 @@ import { UserStatus } from '../entities/user.status.enum';
 import { Role } from '../../role/entities/role.enum';
 import { CreateUserDto } from '../dto/create-user.dto';
 
-export class UserHelper {
+export class UserLib {
   /**
    * This method is used to create a new user. It hashes the password and sets the user's role to 'USER'.
    * @param createUserDto - The user to be created

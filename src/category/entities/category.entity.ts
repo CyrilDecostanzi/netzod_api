@@ -15,6 +15,9 @@ import { Tag } from '../../tag/entities/tag.entity';
 
 @Entity()
 export class Category {
+  constructor(partial: Partial<Category>) {
+    Object.assign(this, partial);
+  }
   @PrimaryGeneratedColumn()
   id: number;
 

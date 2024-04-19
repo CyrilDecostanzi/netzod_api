@@ -1,14 +1,15 @@
+import { CreatePostDto } from '../dto/create-post.dto';
 import { Post } from '../entities/post.entity';
 import { PostStatus } from '../entities/post.status.enum';
 
-export class PostHelper {
+export class PostLib {
   /**
    * @description Slugify a text
    * @param {string} text
    * @returns {string}
-   * @memberof PostHelper
+   * @memberof PostLib
    * @static
-   * @example PostHelper.slugifier(text);
+   * @example PostLib.slugifier(text);
    */
   static slugifier = (text: string): string => {
     text = text
@@ -22,20 +23,18 @@ export class PostHelper {
 
   /**
    * @description Create a new post
-   * @param {any} createPostDto
+   * @param {CreatePostDto} createPostDto
    * @param {any} req
    * @returns {Post}
-   * @memberof PostHelper
+   * @memberof PostLib
    * @static
-   * @example PostHelper.createPost(createPostDto, req);
+   * @example PostLib.createPost(createPostDto, req);
    *
    * */
-  static createPost = (createPostDto: any, req: any): Post => {
+  static createPost = (createPostDto: CreatePostDto, req: any): Post => {
     const post = new Post(createPostDto);
-    // construction of the slug
     post.slug = this.slugifier(post.title);
     post.status = PostStatus.DRAFT;
-    post.published_at = new Date();
     post.user_id = req.user.sub;
     return post;
   };

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { IsString, IsInt, IsOptional, Length } from 'class-validator';
+import { IsString, IsOptional, Length, IsInt } from 'class-validator';
 
 @Injectable()
 export class CreatePostDto {
@@ -8,8 +8,8 @@ export class CreatePostDto {
   title: string;
 
   @IsString({ message: 'Le contenu doit être une chaîne de caractères' })
-  @Length(5, 250, {
-    message: 'Le contenu doit faire entre 5 et 250 caractères',
+  @Length(5, 5000, {
+    message: 'Le contenu doit faire entre 5 et 5000 caractères',
   })
   content: string;
 
@@ -20,7 +20,9 @@ export class CreatePostDto {
   @IsOptional()
   cover: string;
 
-  @IsInt({ message: 'Le statut doit être un nombre entier' })
-  @IsOptional()
+  @IsInt({ message: 'Le statut doit être un entier' })
   category_id: number;
+
+  @IsInt({ message: "L'utilisateur doit être un entier" })
+  user_id: number;
 }

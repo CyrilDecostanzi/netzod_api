@@ -12,15 +12,25 @@ export const loggerOptions: winston.LoggerOptions = {
   transports: [
     new winston.transports.File({
       filename: 'logs/error.log',
-      level: 'error',
+      level: 'error', // Niveau pour les erreurs
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.printf(
+          (info) => `${info.timestamp} ${info.level}: ${info.message}`,
+        ),
+      ),
+    }),
+    new winston.transports.File({
+      filename: 'logs/info.log',
+      level: 'info', // Niveau pour les informations
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.printf(
+          (info) => `${info.timestamp} ${info.level}: ${info.message}`,
+        ),
+      ),
     }),
   ],
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.printf(
-      (info) => `${info.timestamp} ${info.level}: ${info.message}`,
-    ),
-  ),
 };
 
 export const logError = (
@@ -35,4 +45,8 @@ Code : ${error.code}
 Message : ${error.message}
 Stack : ${error.stack}
   `);
+};
+
+export const logInfo = (logger: Logger, message: string) => {
+  logger.log(message);
 };

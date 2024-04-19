@@ -9,6 +9,9 @@ import { Category } from '../../category/entities/category.entity';
 
 @Entity()
 export class Tag {
+  constructor(partial: Partial<Tag>) {
+    Object.assign(this, partial);
+  }
   @PrimaryGeneratedColumn()
   id: number;
 

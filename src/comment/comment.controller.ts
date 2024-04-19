@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Req,
   Body,
   Patch,
   Param,
@@ -19,8 +20,8 @@ export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
   @Post()
-  create(@Body() createCommentDto: CreateCommentDto) {
-    return this.commentService.create(createCommentDto);
+  create(@Body() createCommentDto: CreateCommentDto, @Req() req: any) {
+    return this.commentService.create(createCommentDto, req);
   }
 
   @Get()

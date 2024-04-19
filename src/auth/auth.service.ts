@@ -1,18 +1,24 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { User } from '../user/entities/user.entity';
+import { logInfo } from '../lib/logger/logger';
 
 @Injectable()
 export class AuthService {
+  logger: Logger = new Logger(AuthService.name);
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
   ) {}
 
   private createToken(user: User): { access_token: string } {
+    logInfo(
+      this.logger,
+      `Création du token pour l'utilisateur ${user.id}, ${user.username}, ${user.email}`,
+    );
     const payload = { sub: user.id, username: user.username };
     return {
       access_token: this.jwtService.sign(payload),

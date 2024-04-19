@@ -1,26 +1,88 @@
-import { Injectable } from '@nestjs/common';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
+import { Repository } from 'typeorm';
+import { Tag } from './entities/tag.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { logError } from '../lib/logger/logger';
+import * as path from 'path';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export class TagService {
-  create(createTagDto: CreateTagDto) {
-    return 'This action adds a new tag';
+  logger = new Logger(TagService.name);
+
+  constructor(
+    @InjectRepository(Tag)
+    private tagRepository: Repository<Tag>,
+  ) {}
+
+  async create(createTagDto: CreateTagDto) {
+    try {
+      const tag = new Tag(createTagDto);
+      return await this.tagRepository.save(tag);
+    } catch (error) {
+      const currentFilePath = path.resolve(__filename);
+      logError(this.logger, error, currentFilePath);
+      const message = "Une erreur est survenue lors de l'enregistrement";
+      throw new HttpException(
+        error.message ?? message,
+        error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
-  findAll() {
-    return `This action returns all tag`;
+  async findAll() {
+    const tags = await this.tagRepository.find();
+    if (!tags) {
+      throw new HttpException('No tags found', HttpStatus.NOT_FOUND);
+    }
+    return tags;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} tag`;
+  async findOne(id: number) {
+    const tag = await this.tagRepository.findOne({ where: { id } });
+    if (!tag) {
+      throw new HttpException('No tag found', HttpStatus.NOT_FOUND);
+    }
+    return tag;
   }
 
-  update(id: number, updateTagDto: UpdateTagDto) {
-    return `This action updates a #${id} tag`;
+  async update(id: number, updateTagDto: UpdateTagDto) {
+    try {
+      const tag = await this.tagRepository.findOne({ where: { id } });
+      if (!tag) {
+        throw new HttpException('No tag found', HttpStatus.NOT_FOUND);
+      }
+      return await this.tagRepository.save({
+        ...tag,
+        ...updateTagDto,
+      });
+    } catch (error) {
+      const currentFilePath = path.resolve(__filename);
+      logError(this.logger, error, currentFilePath);
+      const message = "Une erreur est survenue lors de l'enregistrement";
+      throw new HttpException(
+        error.message ?? message,
+        error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} tag`;
+  async remove(id: number) {
+    try {
+      const tag = await this.tagRepository.findOne({ where: { id } });
+      if (!tag) {
+        throw new HttpException('No tag found', HttpStatus.NOT_FOUND);
+      }
+      return await this.tagRepository.softRemove(tag);
+    } catch (error) {
+      const currentFilePath = path.resolve(__filename);
+      logError(this.logger, error, currentFilePath);
+      const message = "Une erreur est survenue lors de l'enregistrement";
+      throw new HttpException(
+        error.message ?? message,
+        error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
