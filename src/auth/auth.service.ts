@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
@@ -21,37 +27,69 @@ export class AuthService {
     );
     const payload = { sub: user.id, username: user.username };
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: this.jwtService.sign(payload, {
+        expiresIn: '1d',
+      }),
     };
   }
 
   private async validateUser(email: string, password: string): Promise<User> {
     const user = await this.userService.findByEmail(email);
     if (!user) {
-      throw new BadRequestException('Utilisateur non trouvé.');
+      throw new BadRequestException({
+        field: 'email',
+        message: `L'utilisateur n'existe pas.`,
+        status: HttpStatus.NOT_FOUND,
+      });
     }
 
     const passwordIsValid = bcrypt.compareSync(password, user.password);
     if (!passwordIsValid) {
-      throw new BadRequestException('Mot de passe incorrect.');
+      throw new BadRequestException({
+        field: 'password',
+        message: `Le mot de passe est incorrect.`,
+        status: HttpStatus.UNAUTHORIZED,
+      });
     }
 
     return user;
   }
 
   async signIn(email: string, password: string): Promise<any> {
-    const user = await this.validateUser(email, password);
-    return {
-      user,
-      ...this.createToken(user),
-    };
+    try {
+      const user = await this.validateUser(email, password);
+      return {
+        user,
+        ...this.createToken(user),
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          field: error.response.field,
+          message: error.response.message,
+          status: HttpStatus.BAD_REQUEST,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   async signUp(createUserDto: CreateUserDto): Promise<any> {
-    const newUser = await this.userService.create(createUserDto);
-    return {
-      newUser,
-      ...this.createToken(newUser),
-    };
+    try {
+      const newUser = await this.userService.create(createUserDto);
+      return {
+        newUser,
+        ...this.createToken(newUser),
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          field: error.field,
+          message: error.message,
+          status: HttpStatus.BAD_REQUEST,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }

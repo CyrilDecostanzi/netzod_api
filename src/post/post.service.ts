@@ -40,11 +40,20 @@ export class PostService {
   }
 
   async findAll() {
-    const posts = await this.postRepository.find();
-    if (!posts) {
-      throw new HttpException('No posts found', HttpStatus.NOT_FOUND);
+    try {
+      const posts = await this.postRepository.find();
+
+      return posts;
+    } catch (error) {
+      throw new HttpException(
+        {
+          field: 'posts',
+          message: 'Une erreur est survenue lors de la récupération des posts',
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
-    return posts;
   }
 
   async findOne(id: number) {
@@ -112,6 +121,51 @@ export class PostService {
       throw new HttpException(
         error.message ?? 'Une erreur est survenue lors de la suppression',
         error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  // ###############################################################
+  // ##################### CUSTOM METHODS ##########################
+  // ###############################################################
+
+  async findFeaturedPosts() {
+    try {
+      const posts = await this.postRepository.find({
+        take: 4,
+        // TODO: choisir et definir la logique de selection des posts en vedette
+        order: { created_at: 'DESC' },
+      });
+
+      return posts;
+    } catch (error) {
+      throw new HttpException(
+        {
+          field: 'posts',
+          message: 'Une erreur est survenue lors de la récupération des posts',
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async findPostsByCategory(categoryId: number) {
+    try {
+      const posts = await this.postRepository.find({
+        where: { category_id: categoryId },
+        order: { created_at: 'DESC' },
+      });
+
+      return posts;
+    } catch (error) {
+      throw new HttpException(
+        {
+          field: 'posts',
+          message: 'Une erreur est survenue lors de la récupération des posts',
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }

@@ -14,11 +14,16 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
 import { Roles } from '../lib/decorators/roles.decorator';
 import { Role } from '../role/entities/role.enum';
+import { Public } from '../lib/decorators/public.decorator';
 
 @Controller('posts')
 @UseInterceptors(ClassSerializerInterceptor)
 export class PostController {
   constructor(private readonly postService: PostService) {}
+
+  // ##############################################################
+  // ######################## CRUD ROUTES #########################
+  // ##############################################################
 
   @Post()
   create(@Body() createPostDto: CreatePostDto, @Req() req: any) {
@@ -48,5 +53,21 @@ export class PostController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.postService.remove(+id);
+  }
+
+  // ##############################################################
+  // ######################## CUSTOM ROUTES #######################
+  // ##############################################################
+
+  @Get('featured/cardlist')
+  @Public()
+  findFeaturedPosts() {
+    return this.postService.findFeaturedPosts();
+  }
+
+  @Get('category/:id')
+  @Public()
+  findPostsByCategory(@Param('id') id: string) {
+    return this.postService.findPostsByCategory(+id);
   }
 }
