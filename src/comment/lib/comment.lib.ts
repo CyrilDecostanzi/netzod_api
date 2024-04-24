@@ -18,7 +18,7 @@ export class CommentLib {
     req: any,
   ): Comment => {
     const comment = new Comment(createCommentDto);
-    comment.user_id = req.user.sub;
+    comment.user_id = req.user.id;
     comment.status = CommentStatus.AWAITING_APPROVAL;
     return comment;
   };

@@ -29,7 +29,7 @@ export class ImageController {
       throw new Error('Le format du fichier est invalide');
     }
     // Handle the file, save metadata to DB, etc.
-    return this.imageService.create(file, post_id, req.user.sub);
+    return this.imageService.create(file, post_id, req.user.id);
   }
 
   @Get()
@@ -51,6 +51,6 @@ export class ImageController {
   // eslint-disable-next-line
   async remove(@Param('id') id: string, @Req() req: any) {
     // remove the file from the file system and the metadata from the DB
-    return this.imageService.remove(+id, req.user.sub);
+    return this.imageService.remove(+id, req.user.id);
   }
 }

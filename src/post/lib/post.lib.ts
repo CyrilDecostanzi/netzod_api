@@ -35,7 +35,7 @@ export class PostLib {
     const post = new Post(createPostDto);
     post.slug = this.slugifier(post.title);
     post.status = PostStatus.DRAFT;
-    post.user_id = req.user.sub;
+    post.user_id = req.user.id;
     return post;
   };
 }

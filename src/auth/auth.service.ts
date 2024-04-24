@@ -25,10 +25,21 @@ export class AuthService {
       this.logger,
       `Création du token pour l'utilisateur ${user.id}, ${user.username}, ${user.email}`,
     );
-    const payload = { sub: user.id, username: user.username };
+
+    const payload = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role_id: user.role_id,
+      firstname: user.firstname,
+      lastname: user.lastname,
+      avatar: user.avatar,
+      mobile: user.mobile,
+      status: user.status,
+    };
     return {
       access_token: this.jwtService.sign(payload, {
-        expiresIn: '1d',
+        expiresIn: '2d',
       }),
     };
   }

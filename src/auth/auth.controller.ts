@@ -35,7 +35,7 @@ export class AuthController {
   })
   @Get('profile')
   getProfile(@Req() req) {
-    const user = this.userService.findOne(req.user.sub);
+    const user = this.userService.findOne(req.user.id);
     return user;
   }
 

@@ -88,7 +88,7 @@ export class PostService {
       }
 
       const user = await this.userRepository.findOne({
-        where: { id: req.user.sub },
+        where: { id: req.user.id },
       });
 
       if (user.id !== post.user.id && user.role_id !== Role.ADMIN) {

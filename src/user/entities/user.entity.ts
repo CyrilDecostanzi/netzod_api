@@ -45,7 +45,7 @@ export class User {
   status: number;
 
   @Column({ type: 'tinyint', width: 1, default: 1 })
-  @Exclude()
+  @Expose({ groups: ['auth', 'admin'] })
   role_id: number;
 
   @Column({ length: 15, nullable: true })
