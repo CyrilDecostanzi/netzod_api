@@ -87,10 +87,10 @@ export class AuthService {
 
   async signUp(createUserDto: CreateUserDto): Promise<any> {
     try {
-      const newUser = await this.userService.create(createUserDto);
+      const user = await this.userService.create(createUserDto);
       return {
-        newUser,
-        ...this.createToken(newUser),
+        user,
+        ...this.createToken(user),
       };
     } catch (error) {
       throw new HttpException(

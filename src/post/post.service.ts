@@ -135,6 +135,7 @@ export class PostService {
         take: 4,
         // TODO: choisir et definir la logique de selection des posts en vedette
         order: { created_at: 'DESC' },
+        relations: ['category', 'user'],
       });
 
       return posts;

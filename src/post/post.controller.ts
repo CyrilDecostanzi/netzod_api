@@ -59,12 +59,22 @@ export class PostController {
   // ######################## CUSTOM ROUTES #######################
   // ##############################################################
 
+  /**
+   * Find 4 featured posts for the home page
+   * @returns {Promise<Post[]>} - 4 featured posts
+   * @example /posts/featured/cardlist
+   */
   @Get('featured/cardlist')
   @Public()
   findFeaturedPosts() {
     return this.postService.findFeaturedPosts();
   }
 
+  /**
+   * Find posts by category
+   * @returns {Promise<Post[]>} - 4 latest posts
+   * @example /posts/latest/cardlist
+   */
   @Get('category/:id')
   @Public()
   findPostsByCategory(@Param('id') id: string) {
