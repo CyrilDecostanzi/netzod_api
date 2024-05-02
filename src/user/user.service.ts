@@ -111,26 +111,37 @@ export class UserService {
    */
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
     try {
-      const user = await this.userRepository.findOne({ where: { id } });
+      const user = await this.userRepository.findOne({
+        where: { id },
+      });
       if (!user) {
         throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
 
-      // Check if email is already taken
-      const userWithSameEmail = await this.findByEmail(updateUserDto.email);
+      if (updateUserDto.email) {
+        // Check if email is already taken
+        const userWithSameEmail = await this.findByEmail(updateUserDto.email);
 
-      if (userWithSameEmail && userWithSameEmail.id !== id) {
-        const msg = 'Cette adresse email est déjà utilisée';
-        throw new BadRequestException(msg);
+        if (userWithSameEmail && userWithSameEmail.id !== id) {
+          const msg = 'Cette adresse email est déjà utilisée';
+          throw new BadRequestException({
+            field: 'email',
+            message: msg,
+            status: HttpStatus.BAD_REQUEST,
+          });
+        }
       }
       if (updateUserDto.password) {
         const salt = bcrypt.genSaltSync(+process.env.SALT_ROUNDS);
         updateUserDto.password = bcrypt.hashSync(updateUserDto.password, salt);
       }
-      return await this.userRepository.save({
+
+      const plainUser = await this.userRepository.save({
         ...user,
         ...updateUserDto,
       });
+
+      return new User(plainUser);
     } catch (error) {
       const currentFilePath = path.resolve(__filename);
       logError(this.logger, error, currentFilePath);

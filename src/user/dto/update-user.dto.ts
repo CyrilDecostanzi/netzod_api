@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { IsString, IsEmail, Length } from 'class-validator';
 import { CreateUserDto } from './create-user.dto';
+import { IsString, IsEmail, Length, IsOptional } from 'class-validator';
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsString()
@@ -8,5 +8,6 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @Length(1, 100, {
     message: "L'email doit contenir entre 1 et 100 caractères",
   })
-  email: string;
+  @IsOptional()
+  email?: string;
 }

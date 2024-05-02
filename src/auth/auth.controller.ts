@@ -47,4 +47,21 @@ export class AuthController {
   signUp(@Body() signUpDto: CreateUserDto) {
     return this.authService.signUp(signUpDto);
   }
+
+  @SerializeOptions({
+    groups: ['auth'],
+  })
+  @Public()
+  @Post('refresh')
+  refresh(@Body() data: any) {
+    return this.authService.refresh(data.token);
+  }
+
+  @SerializeOptions({
+    groups: ['auth'],
+  })
+  @Post('logout')
+  logout(@Req() req) {
+    return this.authService.logout(req.user);
+  }
 }

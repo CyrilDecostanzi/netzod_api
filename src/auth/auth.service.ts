@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   HttpException,
+  UnauthorizedException,
   HttpStatus,
   Injectable,
   Logger,
@@ -11,6 +12,8 @@ import bcrypt from 'bcrypt';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { User } from '../user/entities/user.entity';
 import { logInfo } from '../lib/logger/logger';
+import { MailService } from '../mail/mail.service';
+import { jwtConstants } from './constants';
 
 @Injectable()
 export class AuthService {
@@ -18,9 +21,10 @@ export class AuthService {
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
+    private mailService: MailService,
   ) {}
 
-  private createToken(user: User): { access_token: string } {
+  private createAccessToken(user: User): string {
     logInfo(
       this.logger,
       `Création du token pour l'utilisateur ${user.id}, ${user.username}, ${user.email}`,
@@ -37,11 +41,19 @@ export class AuthService {
       mobile: user.mobile,
       status: user.status,
     };
-    return {
-      access_token: this.jwtService.sign(payload, {
-        expiresIn: '2d',
-      }),
-    };
+
+    return this.jwtService.sign(payload, {
+      secret: jwtConstants.secret,
+      expiresIn: '15m',
+    });
+  }
+
+  private createRefreshToken(user: User): string {
+    const payload = { id: user.id };
+    return this.jwtService.sign(payload, {
+      secret: jwtConstants.refreshSecret,
+      expiresIn: '7d',
+    });
   }
 
   private async validateUser(email: string, password: string): Promise<User> {
@@ -69,9 +81,15 @@ export class AuthService {
   async signIn(email: string, password: string): Promise<any> {
     try {
       const user = await this.validateUser(email, password);
+      const refresh_token = this.createRefreshToken(user);
+      const access_token = this.createAccessToken(user);
+
+      // Stocker le refresh token dans la base de données
+      await this.userService.update(user.id, { refresh_token: refresh_token });
+
       return {
         user,
-        ...this.createToken(user),
+        access_token,
       };
     } catch (error) {
       throw new HttpException(
@@ -88,9 +106,21 @@ export class AuthService {
   async signUp(createUserDto: CreateUserDto): Promise<any> {
     try {
       const user = await this.userService.create(createUserDto);
+      const refresh_token = this.createRefreshToken(user);
+      const access_token = this.createAccessToken(user);
+
+      // Stocker le refresh token dans la base de données
+      await this.userService.update(user.id, { refresh_token: refresh_token });
+
+      // TODO : send email confirmation with token to user
+      const token = Math.floor(1000 + Math.random() * 9000).toString();
+      this.mailService.sendUserConfirmation(user, token).catch((error) => {
+        console.error('error email: ', error);
+      });
+
       return {
         user,
-        ...this.createToken(user),
+        access_token,
       };
     } catch (error) {
       throw new HttpException(
@@ -102,5 +132,45 @@ export class AuthService {
         HttpStatus.BAD_REQUEST,
       );
     }
+  }
+
+  async refresh(token: string): Promise<any> {
+    const data = this.jwtService.decode(token);
+
+    const user = await this.userService.findOne(data.id);
+
+    if (!user || !user.refresh_token) {
+      throw new UnauthorizedException({
+        field: 'refresh_token',
+        message: 'Invalid or Expired Refresh Token',
+        status: HttpStatus.UNAUTHORIZED,
+      });
+    }
+
+    try {
+      await this.jwtService.verifyAsync(user.refresh_token, {
+        secret: jwtConstants.refreshSecret,
+      });
+
+      const newAccessToken = this.createAccessToken(user);
+
+      return {
+        user: user,
+        access_token: newAccessToken,
+      };
+    } catch {
+      throw new UnauthorizedException({
+        field: 'refresh_token',
+        message: 'Invalid or Expired Refresh Token',
+        status: HttpStatus.UNAUTHORIZED,
+      });
+    }
+  }
+
+  async logout(user: User): Promise<any> {
+    await this.userService.update(user.id, { refresh_token: null });
+    return {
+      message: 'User logged out',
+    };
   }
 }

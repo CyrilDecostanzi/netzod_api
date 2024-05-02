@@ -66,4 +66,8 @@ export class CreateUserDto {
   })
   @IsOptional()
   bio: string;
+
+  @IsString()
+  @IsOptional()
+  refresh_token: string;
 }

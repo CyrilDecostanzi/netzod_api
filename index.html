@@ -14,6 +14,7 @@
     <script>
         document.getElementById('image').addEventListener('change', function (event) {
             const file = event.target.files[0];
+            console.log(file);
             if (!file) {
                 console.error('No file selected.');
                 return;
@@ -22,11 +23,11 @@
             const formData = new FormData();
             formData.append('file', file);
 
-            fetch('http://localhost:3001/image/post/49', { // Remplacez par votre ID de post réel
+            fetch('http://localhost:3001/image/avatar', { // Remplacez par votre ID de post réel
                     method: 'POST',
                     body: formData,
                     headers: {
-                        Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjYsInVzZXJuYW1lIjoiWm9kIiwiZW1haWwiOiJ6b2RAeW9wbWFpbC5jb20iLCJyb2xlX2lkIjozLCJmaXJzdG5hbWUiOiJDeXJpbCIsImxhc3RuYW1lIjoiRGVjb3N0YW56aSIsImF2YXRhciI6bnVsbCwibW9iaWxlIjpudWxsLCJzdGF0dXMiOjEsImlhdCI6MTcxNDEyNDAxNSwiZXhwIjoxNzE0Mjk2ODE1fQ.9X2_rJdI5_CpzSqFefzzrMh7I9PaVp1w_tNCg2SJW9I',
+                        Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ODgsInVzZXJuYW1lIjoiWm9kZCIsImVtYWlsIjoiZGVjb3N0YW56aWN5cmlsQGdtYWlsLmNvbSIsInJvbGVfaWQiOjEsImZpcnN0bmFtZSI6IkN5cmlsIiwibGFzdG5hbWUiOiJEZWNvc3RhbnppIiwiYXZhdGFyIjoidXBsb2Fkcy91c2VyXzY2L3VzZXJfNjZfMTU2MTY1MTY1LmpwZWciLCJtb2JpbGUiOiIwNjYyOTMyMDUxIiwic3RhdHVzIjoxLCJpYXQiOjE3MTQ0ODg3MjgsImV4cCI6MTcxNDQ4OTYyOH0.7130-tI1cEslCPrmn9SiRM8lBjc2yHnSy3JDVZzuh2M',
                     },
                 })
                 .then(response => {

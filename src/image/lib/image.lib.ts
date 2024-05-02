@@ -37,3 +37,28 @@ export const multerOptions = {
   fileFilter: imageFileFilter,
   limits: { fileSize: 1024 * 1024 * 5 }, // 5MB
 };
+
+export const avatarMulterOptions = {
+  storage: multer.diskStorage({
+    destination: (
+      req: any,
+      file: any,
+      cb: (arg0: null, arg1: string) => any,
+    ) => {
+      const user_id = req.user.id;
+      const path = `./uploads/user_${user_id}`;
+      fs.mkdirSync(path, { recursive: true });
+      return cb(null, path);
+    },
+    filename: (req: any, file: any, cb: any) => {
+      const user_id = req.user?.id; // Add a question mark to handle the case when 'user' property is undefined
+      const uniqueId = Date.now();
+      const filename = `user_${user_id}_${uniqueId}${path.extname(
+        file.originalname,
+      )}`;
+      cb(null, filename);
+    },
+  }),
+  fileFilter: imageFileFilter,
+  limits: { fileSize: 1024 * 1024 * 5 }, // 5MB
+};

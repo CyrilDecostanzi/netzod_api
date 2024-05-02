@@ -13,10 +13,13 @@ import {
   AuthModule,
 } from './';
 import { getTypeOrmConfig } from './ormconfig';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: getTypeOrmConfig,
@@ -29,6 +32,7 @@ import { getTypeOrmConfig } from './ormconfig';
     CategoryModule,
     CommentModule,
     AuthModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

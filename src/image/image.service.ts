@@ -4,19 +4,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { Repository } from 'typeorm';
 import * as fs from 'fs';
+import { User } from '../user';
 
 @Injectable()
 export class ImageService {
   logger = new Logger(ImageService.name);
 
   constructor(
-    @InjectRepository(Image)
-    private imageRepository: Repository<Image>,
+    @InjectRepository(Image) private imageRepository: Repository<Image>,
+    @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  create(file: any, post_id: string, user_id: string) {
-    console.log('user_id', user_id);
-
+  async create(file: any, post_id: string) {
     // save image url to DB and the id of the post
     try {
       const image = new Image({
@@ -24,6 +23,31 @@ export class ImageService {
         post_id: parseInt(post_id),
       });
       return this.imageRepository.save(image);
+    } catch (error) {
+      this.logger.error(error);
+      throw new Error("Erreur lors de l'enregistrement de l'image");
+    }
+  }
+
+  async uploadAvatar(file: any, user: User) {
+    try {
+      const path = file.path;
+
+      const t_user = await this.userRepository.findOne({
+        where: { id: +user.id },
+      });
+
+      if (t_user.avatar) {
+        // delete old avatar file if exists
+        fs.unlinkSync(t_user.avatar);
+      }
+
+      const plainUser = await this.userRepository.save({
+        ...t_user,
+        avatar: path,
+      });
+
+      return new User(plainUser);
     } catch (error) {
       this.logger.error(error);
       throw new Error("Erreur lors de l'enregistrement de l'image");
@@ -51,10 +75,10 @@ export class ImageService {
 
   async remove(id: number, user_id: number) {
     const image = await this.findOne(id);
-    console.log('image', image);
     if (image.post.user_id !== user_id) {
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }
+    // delete image file from disk
     fs.unlinkSync(image.url);
     return await this.imageRepository.remove(image);
   }

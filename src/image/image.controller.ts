@@ -6,30 +6,45 @@ import {
   Param,
   Delete,
   Req,
+  SerializeOptions,
 } from '@nestjs/common';
 import { ImageService } from './image.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { UploadedFile, UseInterceptors } from '@nestjs/common';
+import {
+  UploadedFile,
+  UseInterceptors,
+  ClassSerializerInterceptor,
+} from '@nestjs/common';
 import { File } from 'buffer';
-import { multerOptions } from './lib/image.lib';
+import { avatarMulterOptions, multerOptions } from './lib/image.lib';
 
 @Controller('image')
+@UseInterceptors(ClassSerializerInterceptor)
 export class ImageController {
   constructor(private readonly imageService: ImageService) {}
 
-  // @Public()
   @Post('post/:post_id')
   @UseInterceptors(FileInterceptor('file', multerOptions))
-  async create(
-    @UploadedFile() file: File,
-    @Param('post_id') post_id: string,
-    @Req() req: any,
-  ) {
+  async create(@UploadedFile() file: File, @Param('post_id') post_id: string) {
     if (!file) {
       throw new Error('Le format du fichier est invalide');
     }
     // Handle the file, save metadata to DB, etc.
-    return this.imageService.create(file, post_id, req.user.id);
+    return this.imageService.create(file, post_id);
+  }
+
+  @SerializeOptions({
+    groups: ['auth'],
+  })
+  @Post('avatar')
+  @UseInterceptors(FileInterceptor('avatar', avatarMulterOptions))
+  async uploadAvatar(@UploadedFile() avatar: File, @Req() req: any) {
+    if (!avatar) {
+      throw new Error('Le format du fichier est invalide');
+    }
+
+    // Handle the file, save metadata to DB, etc.
+    return this.imageService.uploadAvatar(avatar, req.user);
   }
 
   @Get()

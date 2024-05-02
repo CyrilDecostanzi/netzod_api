@@ -66,6 +66,10 @@ export class User {
   @Expose({ groups: ['auth', 'user_detail'] })
   bio: string;
 
+  @Column({ type: 'text', nullable: true })
+  @Exclude()
+  refresh_token: string;
+
   @CreateDateColumn()
   @Expose({ groups: ['admin'] })
   created_at: Date;
