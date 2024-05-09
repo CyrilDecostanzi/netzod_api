@@ -20,9 +20,6 @@ export class CreatePostDto {
   @IsOptional()
   cover: string;
 
-  @IsInt({ message: 'Le statut doit être un entier' })
+  @IsInt({ message: 'Le category_id doit être un nombre entier' })
   category_id: number;
-
-  @IsInt({ message: "L'utilisateur doit être un entier" })
-  user_id: number;
 }

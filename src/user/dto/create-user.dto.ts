@@ -12,15 +12,15 @@ import { IsEmailUniqueValidator } from '../../lib/validators/email-validator';
 @Injectable()
 export class CreateUserDto {
   @IsString()
-  @Length(1, 50, {
-    message: 'Le pseudo doit contenir entre 1 et 50 caractères',
+  @Length(3, 50, {
+    message: 'Le pseudo doit contenir entre 3 et 50 caractères',
   })
   username: string;
 
   @IsString()
   @IsEmail({}, { message: "L'email est invalide" })
-  @Length(1, 100, {
-    message: "L'email doit contenir entre 1 et 100 caractères",
+  @Length(5, 100, {
+    message: "L'email doit contenir entre 5 et 100 caractères",
   })
   @Validate(IsEmailUniqueValidator, {
     message: "L'email est déjà utilisé",
@@ -32,6 +32,9 @@ export class CreateUserDto {
     message:
       'Le mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre',
   })
+  @Length(8, 150, {
+    message: 'Le mot de passe doit contenir entre 8 et 150 caractères',
+  })
   password: string;
 
   @IsString()
@@ -42,14 +45,14 @@ export class CreateUserDto {
   mobile: string;
 
   @IsString()
-  @Length(1, 50, {
-    message: 'Le prénom doit contenir entre 1 et 50 caractères',
+  @Length(3, 50, {
+    message: 'Le prénom doit contenir entre 3 et 50 caractères',
   })
   firstname: string;
 
   @IsString()
-  @Length(1, 50, {
-    message: 'Le nom doit contenir entre 1 et 50 caractères',
+  @Length(3, 50, {
+    message: 'Le nom doit contenir entre 3 et 50 caractères',
   })
   lastname: string;
 
@@ -61,8 +64,8 @@ export class CreateUserDto {
   avatar: string;
 
   @IsString()
-  @Length(1, 600, {
-    message: 'La biographie doit contenir entre 1 et 600 caractères',
+  @Length(10, 600, {
+    message: 'La biographie doit contenir entre 10 et 600 caractères',
   })
   @IsOptional()
   bio: string;

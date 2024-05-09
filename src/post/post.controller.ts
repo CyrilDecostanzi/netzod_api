@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -15,6 +16,7 @@ import { UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
 import { Roles } from '../lib/decorators/roles.decorator';
 import { Role } from '../role/entities/role.enum';
 import { Public } from '../lib/decorators/public.decorator';
+import { PostGuard } from './post.guard';
 
 @Controller('posts')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -41,15 +43,13 @@ export class PostController {
     return this.postService.findOne(+id);
   }
 
+  @UseGuards(PostGuard)
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updatePostDto: UpdatePostDto,
-    @Req() req: any,
-  ) {
-    return this.postService.update(+id, updatePostDto, req);
+  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
+    return this.postService.update(+id, updatePostDto);
   }
 
+  @UseGuards(PostGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.postService.remove(+id);

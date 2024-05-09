@@ -10,6 +10,8 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { PostLib } from './lib/post.lib';
 import { User } from '../user';
 import { Role } from '../role/entities/role.enum';
+import { PostStatus } from './entities/post.status.enum';
+import { Category } from '../category';
 
 @Injectable()
 @UseInterceptors()
@@ -19,22 +21,41 @@ export class PostService {
   constructor(
     @InjectRepository(Post) private postRepository: Repository<Post>,
     @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
   ) {}
+
+  async isUserAuthorized(id: number, user: User): Promise<boolean> {
+    const post = await this.postRepository.findOne({
+      where: { id },
+    });
+    if (!post) {
+      throw new HttpException('No post found', HttpStatus.NOT_FOUND);
+    }
+    return user.id === post.user_id || user.role_id === Role.ADMIN;
+  }
+
   async create(createPostDto: CreatePostDto, req: any) {
     try {
       const post = PostLib.createPost(createPostDto, req);
       // return the newly created post with its relations category and user
       const newPost = await this.postRepository.save(post);
-      return await this.postRepository.findOne({
-        where: { id: newPost.id },
-        relations: ['user', 'category.tags'],
-      });
+      return new Post(
+        await this.postRepository.findOne({
+          where: { id: newPost.id },
+          relations: ['user', 'category.tags'],
+        }),
+      );
     } catch (error) {
       const currentFilePath = path.resolve(__filename);
       logError(this.logger, error, currentFilePath);
       throw new HttpException(
-        error.message ?? "Une erreur est survenue lors de l'enregistrement",
-        error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
+        {
+          field: error.field,
+          message: error.message,
+          status: HttpStatus.BAD_REQUEST,
+        },
+        HttpStatus.BAD_REQUEST,
       );
     }
   }
@@ -59,12 +80,12 @@ export class PostService {
   async findOne(id: number) {
     const post = await this.postRepository.findOne({
       where: { id },
-      relations: ['user', 'category.tags'],
+      relations: ['user', 'category'],
     });
     if (!post) {
       throw new HttpException('No post found', HttpStatus.NOT_FOUND);
     }
-    return post;
+    return new Post(post);
   }
 
   /**
@@ -76,28 +97,28 @@ export class PostService {
    * @memberof PostService
    * @example PostService.update(id, updatePostDto, req);
    */
-  async update(id: number, updatePostDto: UpdatePostDto, req: any) {
+  async update(id: number, updatePostDto: UpdatePostDto) {
     try {
       const post = await this.postRepository.findOne({
         where: { id },
-        relations: ['user'],
+        relations: ['user', 'category'],
       });
 
       if (!post) {
         throw new HttpException('No post found', HttpStatus.NOT_FOUND);
       }
 
-      const user = await this.userRepository.findOne({
-        where: { id: req.user.id },
-      });
-
-      if (user.id !== post.user.id && user.role_id !== Role.ADMIN) {
-        throw new HttpException(
-          "Vous n'êtes pas autorisé à modifier ce post",
-          HttpStatus.UNAUTHORIZED,
-        );
+      if (updatePostDto.category_id) {
+        const category = await this.categoryRepository.findOne({
+          where: { id: updatePostDto.category_id },
+        });
+        if (!category) {
+          throw new HttpException('No category found', HttpStatus.NOT_FOUND);
+        }
+        post.category = category;
       }
-      return await this.postRepository.save({ ...post, ...updatePostDto });
+
+      return this.postRepository.save(PostLib.updatePost(post, updatePostDto));
     } catch (error) {
       const currentFilePath = path.resolve(__filename);
       logError(this.logger, error, currentFilePath);
@@ -131,12 +152,16 @@ export class PostService {
 
   async findFeaturedPosts() {
     try {
-      const posts = await this.postRepository.find({
-        take: 4,
-        // TODO: choisir et definir la logique de selection des posts en vedette
-        order: { created_at: 'DESC' },
-        relations: ['category', 'user'],
-      });
+      const posts = this.postRepository
+        .createQueryBuilder('post')
+        .where('post.status = :status', { status: PostStatus.ACTIVE })
+        .andWhere('post.published_at IS NOT NULL')
+        .leftJoinAndSelect('post.user', 'user')
+        .leftJoinAndSelect('post.category', 'category')
+        .andWhere('user.id IS NOT NULL') // Assure que le post a un utilisateur associé
+        .take(4)
+        .orderBy('post.created_at', 'DESC')
+        .getMany();
 
       return posts;
     } catch (error) {

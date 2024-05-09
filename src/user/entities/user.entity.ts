@@ -63,7 +63,7 @@ export class User {
   avatar: string;
 
   @Column({ length: 600, nullable: true })
-  @Expose({ groups: ['auth', 'user_detail'] })
+  @Expose({ groups: ['user_detail'] })
   bio: string;
 
   @Column({ type: 'text', nullable: true })

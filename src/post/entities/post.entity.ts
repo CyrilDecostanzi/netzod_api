@@ -32,17 +32,17 @@ export class Post {
   @Column({ type: 'text' })
   content: string;
 
-  @Column({ length: 250 })
+  @Column({ length: 250, nullable: true })
   cover: string;
 
   @Column({ length: 200 })
   slug: string;
 
   @Column({ type: 'tinyint', width: 2 })
+  @Exclude()
   status: number;
 
   @Column({ name: 'category_id', type: 'smallint' })
-  @Exclude()
   category_id: number;
 
   @Column({ name: 'published_at', type: 'datetime', nullable: true })

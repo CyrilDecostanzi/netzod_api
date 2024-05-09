@@ -31,7 +31,7 @@ export class AuthController {
   }
 
   @SerializeOptions({
-    groups: ['auth'],
+    groups: ['auth', 'user_detail'],
   })
   @Get('profile')
   getProfile(@Req() req) {

@@ -86,7 +86,7 @@ export class UserService {
    * @see https://docs.nestjs.com/techniques/database#repository
    */
   async findByEmail(email: string): Promise<User | null> {
-    const user = await this.userRepository.findOne({ where: { email } });
+    const user = await this.userRepository.findOne({ where: { email: email } });
     return user || null;
   }
 
@@ -132,8 +132,28 @@ export class UserService {
         }
       }
       if (updateUserDto.password) {
+        if (!updateUserDto.old_password) {
+          throw new BadRequestException({
+            field: 'old_password',
+            message: `Le mot de passe actuel est requis pour changer le mot de passe.`,
+            status: HttpStatus.BAD_REQUEST,
+          });
+        }
         const salt = bcrypt.genSaltSync(+process.env.SALT_ROUNDS);
         updateUserDto.password = bcrypt.hashSync(updateUserDto.password, salt);
+
+        const passwordIsValid = bcrypt.compareSync(
+          updateUserDto.old_password,
+          user.password,
+        );
+
+        if (!passwordIsValid) {
+          throw new BadRequestException({
+            field: 'old_password',
+            message: `Le mot de passe est incorrect.`,
+            status: HttpStatus.BAD_REQUEST,
+          });
+        }
       }
 
       const plainUser = await this.userRepository.save({
@@ -161,6 +181,8 @@ export class UserService {
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
+
+    // TODO: Check if user has any related data before deleting
 
     await this.userRepository.softRemove(user);
   }

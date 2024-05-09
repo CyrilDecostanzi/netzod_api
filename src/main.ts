@@ -35,6 +35,8 @@ async function bootstrap() {
       exceptionFactory: (errors) => {
         return formatErrors(errors);
       },
+      whitelist: true,
+      transform: true,
     }),
   );
   await app.listen(3001, '0.0.0.0');

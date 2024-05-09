@@ -33,6 +33,19 @@ export class ImageController {
     return this.imageService.create(file, post_id);
   }
 
+  @Post('post/cover/:post_id')
+  @UseInterceptors(FileInterceptor('file', multerOptions))
+  async updateCover(
+    @UploadedFile() file: File,
+    @Param('post_id') post_id: string,
+  ) {
+    if (!file) {
+      throw new Error('Le format du fichier est invalide');
+    }
+    // Handle the file, save metadata to DB, etc.
+    return this.imageService.updateCover(file, post_id);
+  }
+
   @SerializeOptions({
     groups: ['auth'],
   })

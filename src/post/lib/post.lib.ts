@@ -1,4 +1,5 @@
 import { CreatePostDto } from '../dto/create-post.dto';
+import { UpdatePostDto } from '../dto/update-post.dto';
 import { Post } from '../entities/post.entity';
 import { PostStatus } from '../entities/post.status.enum';
 
@@ -34,8 +35,25 @@ export class PostLib {
   static createPost = (createPostDto: CreatePostDto, req: any): Post => {
     const post = new Post(createPostDto);
     post.slug = this.slugifier(post.title);
+    // TODO: Add a check for the slug
+    // check if the slug already exists
+    // if it does, add a random string to the slug
+    // to make it unique
+
     post.status = PostStatus.DRAFT;
     post.user_id = req.user.id;
     return post;
+  };
+
+  static updatePost = (post: Post, updatePostDto: UpdatePostDto): Post => {
+    const updatedData = new Post(updatePostDto);
+
+    if (updatePostDto.title) {
+      updatedData.slug = this.slugifier(updatePostDto.title);
+    }
+    return new Post({
+      ...post,
+      ...updatedData,
+    });
   };
 }
