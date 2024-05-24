@@ -18,7 +18,7 @@ import {
 import { File } from 'buffer';
 import { avatarMulterOptions, multerOptions } from './lib/image.lib';
 
-@Controller('image')
+@Controller('images')
 @UseInterceptors(ClassSerializerInterceptor)
 export class ImageController {
   constructor(private readonly imageService: ImageService) {}

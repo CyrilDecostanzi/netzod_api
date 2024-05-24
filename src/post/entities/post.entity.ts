@@ -14,6 +14,7 @@ import { Category } from '../../category/entities/category.entity';
 import { Comment } from '../../comment/entities/comment.entity';
 import { Image } from '../../image/entities/image.entity';
 import { Exclude } from 'class-transformer';
+import { PostStatus } from './post.status.enum';
 @Entity()
 export class Post {
   constructor(partial: Partial<Post>) {
@@ -26,23 +27,25 @@ export class Post {
   @Exclude()
   user_id: number;
 
-  @Column({ length: 150 })
+  @Column({ length: 150, nullable: true })
   title: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   content: string;
+
+  @Column({ length: 450, nullable: true })
+  description: string;
 
   @Column({ length: 250, nullable: true })
   cover: string;
 
-  @Column({ length: 200 })
+  @Column({ length: 200, nullable: true, unique: true })
   slug: string;
 
-  @Column({ type: 'tinyint', width: 2 })
-  @Exclude()
+  @Column({ type: 'tinyint', width: 2, default: PostStatus.DRAFT })
   status: number;
 
-  @Column({ name: 'category_id', type: 'smallint' })
+  @Column({ name: 'category_id', type: 'smallint', nullable: true, default: 1 })
   category_id: number;
 
   @Column({ name: 'published_at', type: 'datetime', nullable: true })

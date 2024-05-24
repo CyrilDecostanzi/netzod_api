@@ -32,6 +32,7 @@ export class ImageService {
   }
 
   async updateCover(file: any, post_id: string) {
+    console.log('file', file);
     // save image url to DB and the id of the post
     try {
       const t_post = await this.postRepository.findOne({
@@ -65,7 +66,11 @@ export class ImageService {
 
       if (t_user.avatar) {
         // delete old avatar file if exists
-        fs.unlinkSync(t_user.avatar);
+        try {
+          fs.unlinkSync(t_user.avatar);
+        } catch (error) {
+          this.logger.error(error);
+        }
       }
 
       const plainUser = await this.userRepository.save({
