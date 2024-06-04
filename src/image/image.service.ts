@@ -40,7 +40,11 @@ export class ImageService {
 
       if (t_post.cover) {
         // delete old cover file if exists
-        fs.unlinkSync(t_post.cover);
+        try {
+          fs.unlinkSync(t_post.cover);
+        } catch (error) {
+          this.logger.error(error);
+        }
       }
 
       const post = await this.postRepository.save({

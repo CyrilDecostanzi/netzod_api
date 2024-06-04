@@ -10,8 +10,15 @@ COPY package*.json ./
 # Installe les dépendances de l'application
 RUN npm install --legacy-peer-deps
 
+
 # Copie le reste du code source de l'application dans le conteneur
 COPY . .
+
+# Crée un dossier pour les fichiers uploadés
+RUN mkdir uploads
+
+# Ouvrir les permissions pour le dossier uploads pour que l'application puisse écrire dedans
+RUN chmod -R 777 uploads
 
 # Construit l'application pour la production
 RUN npm run build
