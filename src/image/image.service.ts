@@ -45,14 +45,10 @@ export class ImageService {
         }
       }
 
-      console.log(t_post);
-
       const post = await this.postRepository.save({
         ...t_post,
         cover: file.path,
       });
-
-      this.logger.log(post);
 
       return new Post(post);
     } catch (error) {
