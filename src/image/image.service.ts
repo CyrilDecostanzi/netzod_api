@@ -39,18 +39,20 @@ export class ImageService {
       });
 
       if (t_post.cover) {
-        // delete old cover file if exists
-        try {
+        // check if the file exists
+        if (fs.existsSync(t_post.cover)) {
           fs.unlinkSync(t_post.cover);
-        } catch (error) {
-          this.logger.error(error);
         }
       }
+
+      console.log(t_post);
 
       const post = await this.postRepository.save({
         ...t_post,
         cover: file.path,
       });
+
+      this.logger.log(post);
 
       return new Post(post);
     } catch (error) {
