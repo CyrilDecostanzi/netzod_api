@@ -8,13 +8,12 @@ import {
   Delete,
   Req,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
-import { Roles } from '../lib/decorators/roles.decorator';
-import { Role } from '../role/entities/role.enum';
 import { Public } from '../lib/decorators/public.decorator';
 import { PostGuard } from './post.guard';
 import { Post as PostEntity } from './entities/post.entity';
@@ -34,9 +33,13 @@ export class PostController {
   }
 
   @Get()
-  @Roles(Role.ADMIN)
-  findAll() {
-    return this.postService.findAll();
+  @Public()
+  findAll(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Query('category') category: number,
+  ) {
+    return this.postService.findAll(page, limit, category);
   }
 
   @UseGuards(PostGuard)
@@ -99,14 +102,18 @@ export class PostController {
   }
 
   @Get('user/list')
-  findPostsByUser(@Req() req) {
-    return this.postService.findPostsByUser(+req.user.id);
+  findPostsByUser(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Req() req,
+  ) {
+    return this.postService.findPostsByUser(+req.user.id, page, limit);
   }
 
   @Get('detail/:slug')
   @Public()
-  findBySlug(@Param('slug') slug: string) {
-    return this.postService.findBySlug(slug);
+  findBySlug(@Param('slug') slug: string, @Req() req) {
+    return this.postService.findBySlug(slug, req.user || null);
   }
 
   @UseGuards(PostGuard)

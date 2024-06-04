@@ -70,6 +70,10 @@ export class User {
   @Exclude()
   refresh_token: string;
 
+  @Column({ length: 250, nullable: true })
+  @Exclude()
+  verif_token: string;
+
   @CreateDateColumn()
   @Expose({ groups: ['admin'] })
   created_at: Date;

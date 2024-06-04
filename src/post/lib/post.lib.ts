@@ -41,11 +41,11 @@ export class PostLib {
       .filter((suffix) => !isNaN(suffix));
 
     // Déterminer le prochain suffixe disponible
-    const nextSuffix = suffixes.length > 0 ? Math.max(...suffixes) + 1 : 1;
+    const nextSuffix = suffixes.length ? Math.max(...suffixes) + 1 : 0;
 
     // Générer le nouveau slug
     const newSlug =
-      nextSuffix === 1 ? normalizedText : `${normalizedText}-${nextSuffix}`;
+      nextSuffix === 0 ? normalizedText : `${normalizedText}-${nextSuffix}`;
 
     // Vérifier la disponibilité finale du slug en une seule requête
     const existingSlug = await this.postRepository.findOne({

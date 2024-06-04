@@ -14,6 +14,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Roles } from '../lib/decorators/roles.decorator';
 import { Role } from '../role/entities/role.enum';
+import { Public } from '../lib/decorators/public.decorator';
 
 @Controller('categories')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -27,6 +28,7 @@ export class CategoryController {
   }
 
   @Get()
+  @Public()
   findAll() {
     return this.categoryService.findAll();
   }

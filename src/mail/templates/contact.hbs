@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Confirmation</title>
+    <title>Nouveau message</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -19,41 +19,41 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
         }
         h1 {
             color: #333333;
+            text-align: center;
             font-size: 24px;
             margin-bottom: 20px;
         }
         p {
             margin: 10px 0;
+        }
+        .details p {
             color: #555555;
             font-size: 16px;
         }
-        a {
-            display: inline-block;
+        .message {
             margin-top: 20px;
-            padding: 10px 20px;
-            color: #ffffff;
-            background-color: #007BFF;
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        a:hover {
-            background-color: #0056b3;
+            padding: 15px;
+            border-top: 1px solid #dddddd;
+            color: #333333;
+            background-color: #fafafa;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Vérification de votre email</h1>
-        <p>Merci de confirmer votre email en cliquant sur le bouton ci-dessous.</p>
-        <p>
-            <a href="{{ url }}">Confirm</a>
-        </p>
-        <p>Si vous n'avez pas demandé cette vérification, vous pouvez ignorer cet email.</p>
+        <h1>Nouveau message de {{ firstname }} {{ lastname }}</h1>
+        <div class="details">
+            <p><strong>Email:</strong> {{email}}</p>
+            <p><strong>Mobile:</strong> {{mobile}}</p>
+            <p><strong>Company:</strong> {{company}}</p>
+            <p><strong>Objet:</strong> {{object}}</p>
+        </div>
+        <div class="message">
+            <p>{{message}}</p>
+        </div>
     </div>
 </body>
 </html>

@@ -51,6 +51,9 @@ export class Post {
   @Column({ name: 'published_at', type: 'datetime', nullable: true })
   published_at: Date;
 
+  @Column({ name: 'featured', type: 'boolean', default: false })
+  featured: boolean;
+
   @CreateDateColumn()
   created_at: Date;
 

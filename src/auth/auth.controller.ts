@@ -64,4 +64,13 @@ export class AuthController {
   logout(@Req() req) {
     return this.authService.logout(req.user);
   }
+
+  @SerializeOptions({
+    groups: ['auth'],
+  })
+  @Public()
+  @Post('verify-email')
+  verifyEmail(@Body() data: any) {
+    return this.authService.verifyEmail(data.token);
+  }
 }

@@ -32,7 +32,6 @@ export class ImageService {
   }
 
   async updateCover(file: any, post_id: string) {
-    console.log('file', file);
     // save image url to DB and the id of the post
     try {
       const t_post = await this.postRepository.findOne({

@@ -14,6 +14,7 @@ import { User } from '../user/entities/user.entity';
 import { logInfo } from '../lib/logger/logger';
 import { MailService } from '../mail/mail.service';
 import { jwtConstants } from './constants';
+import { UserStatus } from '../user/entities/user.status.enum';
 
 @Injectable()
 export class AuthService {
@@ -110,10 +111,12 @@ export class AuthService {
       const access_token = this.createAccessToken(user);
 
       // Stocker le refresh token dans la base de données
-      await this.userService.update(user.id, { refresh_token: refresh_token });
+      await this.userService.update(user.id, {
+        refresh_token: refresh_token,
+      });
 
-      // TODO : send email confirmation with token to user
-      const token = Math.floor(1000 + Math.random() * 9000).toString();
+      // // TODO : send email confirmation with token to user
+      const token = user.verif_token;
       this.mailService.sendUserConfirmation(user, token).catch((error) => {
         console.error('error email: ', error);
       });
@@ -171,6 +174,24 @@ export class AuthService {
     await this.userService.update(user.id, { refresh_token: null });
     return {
       message: 'User logged out',
+    };
+  }
+
+  async verifyEmail(token: string): Promise<any> {
+    const user = await this.userService.findByVerifToken(token);
+
+    if (!user) {
+      throw new BadRequestException({
+        field: 'token',
+        message: 'Invalid token',
+        status: HttpStatus.BAD_REQUEST,
+      });
+    }
+
+    await this.userService.changeUserStatus(user.id, UserStatus.ACTIVE);
+
+    return {
+      message: 'Email verified',
     };
   }
 }

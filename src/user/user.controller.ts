@@ -10,12 +10,14 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
   Patch,
+  Post,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 // import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Role } from '../role/entities/role.enum';
 import { Roles } from '../lib/decorators/roles.decorator';
+import { Public } from '../lib/decorators/public.decorator';
 
 @Controller('users')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -50,5 +52,11 @@ export class UserController {
   @Delete('delete')
   remove(@Req() req: any) {
     return this.userService.remove(req.user.id);
+  }
+
+  @Post('contact')
+  @Public()
+  contact(@Body() body: any) {
+    return this.userService.contact(body);
   }
 }

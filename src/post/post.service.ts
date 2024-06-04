@@ -25,6 +25,8 @@ export class PostService {
     private categoryRepository: Repository<Category>,
   ) {}
 
+  MAXLimit = 50;
+
   async isUserAuthorized(id: number, user: User): Promise<boolean> {
     const post = await this.postRepository.findOne({
       where: { id },
@@ -109,11 +111,32 @@ export class PostService {
     }
   }
 
-  async findAll() {
+  async findAll(
+    page = 1,
+    limit = 10,
+    category = null,
+  ): Promise<{
+    data: Post[];
+    total: number;
+    page: number;
+    lastPage: number;
+  }> {
     try {
-      const posts = await this.postRepository.find();
+      limit = Math.min(limit, this.MAXLimit); // Assure la limite maximale
+      const [results, total] = await this.postRepository.findAndCount({
+        relations: ['user', 'category'],
+        skip: (page - 1) * limit,
+        take: limit,
+        order: { published_at: 'DESC' },
+        where: category ? { category_id: category } : {},
+      });
 
-      return posts;
+      return {
+        data: results,
+        total,
+        page,
+        lastPage: Math.ceil(total / limit),
+      };
     } catch (error) {
       throw new HttpException(
         {
@@ -164,6 +187,7 @@ export class PostService {
         .createQueryBuilder('post')
         .where('post.status = :status', { status: PostStatus.ACTIVE })
         .andWhere('post.published_at IS NOT NULL')
+        .andWhere('post.featured = :featured', { featured: true })
         .leftJoinAndSelect('post.user', 'user')
         .leftJoinAndSelect('post.category', 'category')
         .andWhere('user.id IS NOT NULL') // Assure que le post a un utilisateur associé
@@ -230,14 +254,27 @@ export class PostService {
     }
   }
 
-  async findPostsByUser(userId: number) {
+  async findPostsByUser(userId: number, page: number, limit: number) {
     try {
-      const posts = await this.postRepository.find({
+      // const posts = await this.postRepository.find({
+      //   where: { user_id: userId },
+      //   order: { created_at: 'DESC' },
+      // });
+
+      limit = Math.min(limit, this.MAXLimit); // Assure la limite maximale
+      const [results, total] = await this.postRepository.findAndCount({
         where: { user_id: userId },
+        skip: (page - 1) * limit,
+        take: limit,
         order: { created_at: 'DESC' },
       });
 
-      return posts;
+      return {
+        data: results,
+        total,
+        page,
+        lastPage: Math.ceil(total / limit),
+      };
     } catch (error) {
       throw new HttpException(
         {
@@ -250,13 +287,29 @@ export class PostService {
     }
   }
 
-  async findBySlug(slug: string) {
+  async findBySlug(slug: string, user: any) {
     try {
-      const post = await this.postRepository.findOne({
-        where: { slug, status: PostStatus.ACTIVE },
-        relations: ['user', 'category'],
-      });
+      const query = this.postRepository
+        .createQueryBuilder('post')
+        .leftJoinAndSelect('post.user', 'user')
+        .leftJoinAndSelect('post.category', 'category')
+        .where('post.slug = :slug', { slug });
 
+      if (user) {
+        query.andWhere(
+          '(post.status = :status OR post.user.id = :userId OR :userRole = :adminRole)',
+          {
+            status: PostStatus.ACTIVE,
+            userId: user.id,
+            adminRole: Role.ADMIN,
+            userRole: user.role_id,
+          },
+        );
+      } else {
+        query.andWhere('post.status = :status', { status: PostStatus.ACTIVE });
+      }
+
+      const post = await query.getOne();
       if (!post) {
         throw new HttpException('No post found', HttpStatus.NOT_FOUND);
       }
