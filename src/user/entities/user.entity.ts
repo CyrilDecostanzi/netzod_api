@@ -10,6 +10,7 @@ import {
   DeleteDateColumn,
   ManyToOne,
   JoinColumn,
+  ManyToMany,
 } from 'typeorm';
 import { Post } from '../../post/entities/post.entity';
 import { Role } from '../../role/entities/role.entity';
@@ -98,4 +99,7 @@ export class User {
     onDelete: 'CASCADE',
   })
   comments: Comment[];
+
+  @ManyToMany(() => Post, (post) => post.liked_by)
+  postsLiked: Post[];
 }

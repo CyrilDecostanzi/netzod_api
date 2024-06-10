@@ -68,7 +68,7 @@ export class PostService {
     try {
       const post = await this.postRepository.findOne({
         where: { id },
-        relations: ['user', 'category'],
+        relations: ['user', 'category', 'liked_by'],
       });
 
       if (!post) {
@@ -124,11 +124,13 @@ export class PostService {
     try {
       limit = Math.min(limit, this.MAXLimit); // Assure la limite maximale
       const [results, total] = await this.postRepository.findAndCount({
-        relations: ['user', 'category'],
+        relations: ['user', 'category', 'liked_by'],
+        where: category
+          ? { category_id: category, status: PostStatus.ACTIVE }
+          : { status: PostStatus.ACTIVE },
+        order: { published_at: 'DESC' },
         skip: (page - 1) * limit,
         take: limit,
-        order: { published_at: 'DESC' },
-        where: category ? { category_id: category } : {},
       });
 
       return {
@@ -152,7 +154,7 @@ export class PostService {
   async findOne(id: number) {
     const post = await this.postRepository.findOne({
       where: { id },
-      relations: ['user', 'category'],
+      relations: ['user', 'category', 'liked_by'],
     });
     if (!post) {
       throw new HttpException('No post found', HttpStatus.NOT_FOUND);
@@ -190,9 +192,10 @@ export class PostService {
         .andWhere('post.featured = :featured', { featured: true })
         .leftJoinAndSelect('post.user', 'user')
         .leftJoinAndSelect('post.category', 'category')
+        .leftJoinAndSelect('post.liked_by', 'liked_by')
         .andWhere('user.id IS NOT NULL') // Assure que le post a un utilisateur associé
+        .orderBy('post.published_at', 'DESC')
         .take(4)
-        .orderBy('post.created_at', 'DESC')
         .getMany();
 
       return posts;
@@ -216,9 +219,10 @@ export class PostService {
         .andWhere('post.published_at IS NOT NULL')
         .leftJoinAndSelect('post.user', 'user')
         .leftJoinAndSelect('post.category', 'category')
+        .leftJoinAndSelect('post.liked_by', 'liked_by')
         .andWhere('user.id IS NOT NULL') // Assure que le post a un utilisateur associé
+        .orderBy('post.published_at', 'DESC')
         .take(4)
-        .orderBy('post.created_at', 'DESC')
         .getMany();
 
       return posts;
@@ -264,9 +268,9 @@ export class PostService {
       limit = Math.min(limit, this.MAXLimit); // Assure la limite maximale
       const [results, total] = await this.postRepository.findAndCount({
         where: { user_id: userId },
+        order: { created_at: 'DESC' },
         skip: (page - 1) * limit,
         take: limit,
-        order: { created_at: 'DESC' },
       });
 
       return {
@@ -293,6 +297,7 @@ export class PostService {
         .createQueryBuilder('post')
         .leftJoinAndSelect('post.user', 'user')
         .leftJoinAndSelect('post.category', 'category')
+        .leftJoinAndSelect('post.liked_by', 'liked_by')
         .where('post.slug = :slug', { slug });
 
       if (user) {
@@ -345,5 +350,28 @@ export class PostService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  async likePost(userId: number, postId: number) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    const post = await this.postRepository.findOne({
+      where: { id: postId },
+      relations: ['liked_by'],
+    });
+
+    if (!post.liked_by.includes(user)) {
+      post.liked_by.push(user);
+      return await this.postRepository.save(post);
+    }
+  }
+
+  async unlikePost(userId: number, postId: number) {
+    const post = await this.postRepository.findOne({
+      where: { id: postId },
+      relations: ['liked_by'],
+    });
+
+    post.liked_by = post.liked_by.filter((u) => u.id !== userId);
+    return await this.postRepository.save(post);
   }
 }

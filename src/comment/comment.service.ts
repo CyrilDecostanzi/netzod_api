@@ -78,7 +78,7 @@ export class CommentService {
       if (!comment) {
         throw new HttpException('No comment found', HttpStatus.NOT_FOUND);
       }
-      return await this.commentRepository.softDelete(comment);
+      return await this.commentRepository.softDelete(comment.id);
     } catch (error) {
       const currentFilePath = path.resolve(__filename);
       logError(this.logger, error, currentFilePath);

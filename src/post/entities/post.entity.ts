@@ -8,6 +8,9 @@ import {
   DeleteDateColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToMany,
+  JoinTable,
+  AfterLoad,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { Category } from '../../category/entities/category.entity';
@@ -76,4 +79,25 @@ export class Post {
 
   @OneToMany(() => Image, (image) => image.post)
   images: Image[];
+
+  @ManyToMany(() => User)
+  @JoinTable({
+    name: 'post_likes',
+    joinColumn: {
+      name: 'post_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id',
+    },
+  })
+  liked_by: User[];
+
+  like_count: number;
+
+  @AfterLoad()
+  countLikes() {
+    this.like_count = this.liked_by?.length || 0; // Calculer le nombre de likes
+  }
 }

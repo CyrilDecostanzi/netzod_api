@@ -121,4 +121,14 @@ export class PostController {
   desactivate(@Param('id') id: string) {
     return this.postService.desactivate(+id);
   }
+
+  @Post('like/:id')
+  like(@Param('id') id: string, @Req() req) {
+    return this.postService.likePost(req.user.id, +id);
+  }
+
+  @Post('unlike/:id')
+  unlike(@Param('id') id: string, @Req() req) {
+    return this.postService.unlikePost(req.user.id, +id);
+  }
 }
