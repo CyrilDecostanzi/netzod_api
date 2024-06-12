@@ -12,7 +12,7 @@ export class MailService {
     await this.mailerService.sendMail({
       to: user.email,
       from: 'Netzod <noreply@netzod.fr>',
-      subject: 'Welcome to Nice App! Confirm your Email',
+      subject: 'Bienvenue sur Netzod.fr',
       template: './confirmation',
       context: {
         name: user.username,
