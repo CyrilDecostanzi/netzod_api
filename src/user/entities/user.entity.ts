@@ -101,5 +101,5 @@ export class User {
   comments: Comment[];
 
   @ManyToMany(() => Post, (post) => post.liked_by)
-  postsLiked: Post[];
+  liked_posts: Post[];
 }

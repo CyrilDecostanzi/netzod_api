@@ -80,18 +80,8 @@ export class Post {
   @OneToMany(() => Image, (image) => image.post)
   images: Image[];
 
-  @ManyToMany(() => User)
-  @JoinTable({
-    name: 'post_likes',
-    joinColumn: {
-      name: 'post_id',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'user_id',
-      referencedColumnName: 'id',
-    },
-  })
+  @ManyToMany(() => User, (user) => user.liked_posts)
+  @JoinTable()
   liked_by: User[];
 
   like_count: number;

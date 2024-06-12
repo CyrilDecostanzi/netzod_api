@@ -260,11 +260,6 @@ export class PostService {
 
   async findPostsByUser(userId: number, page: number, limit: number) {
     try {
-      // const posts = await this.postRepository.find({
-      //   where: { user_id: userId },
-      //   order: { created_at: 'DESC' },
-      // });
-
       limit = Math.min(limit, this.MAXLimit); // Assure la limite maximale
       const [results, total] = await this.postRepository.findAndCount({
         where: { user_id: userId },
@@ -361,6 +356,7 @@ export class PostService {
 
     if (!post.liked_by.includes(user)) {
       post.liked_by.push(user);
+
       return await this.postRepository.save(post);
     }
   }
@@ -373,5 +369,42 @@ export class PostService {
 
     post.liked_by = post.liked_by.filter((u) => u.id !== userId);
     return await this.postRepository.save(post);
+  }
+
+  async findPostsLikedByUser(userId: number, page: number, limit: number) {
+    try {
+      limit = Math.min(limit, this.MAXLimit); // Applique une limite maximale
+
+      // Utilisation de QueryBuilder pour récupérer les posts aimés
+      const qb = this.postRepository.createQueryBuilder('post');
+
+      // Configuration de la jointure pour cibler uniquement les posts aimés par l'utilisateur spécifique
+      qb.innerJoin('post.liked_by', 'user')
+        .where('user.id = :userId', { userId })
+        .orderBy('post.created_at', 'DESC')
+        .leftJoinAndSelect('post.liked_by', 'liked_by')
+        .skip((page - 1) * limit)
+        .take(limit);
+
+      // Execution de la requête pour obtenir les résultats et le compte total
+      const [results, total] = await qb.getManyAndCount();
+
+      return {
+        data: results,
+        total,
+        page,
+        lastPage: Math.ceil(total / limit), // Calcul de la dernière page
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          field: 'liked_posts',
+          message:
+            'Une erreur est survenue lors de la récupération des posts aimés',
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

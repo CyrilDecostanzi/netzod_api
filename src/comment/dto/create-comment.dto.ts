@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { IsInt, IsString, Length } from 'class-validator';
+import { IsString, Length } from 'class-validator';
 
 @Injectable()
 export class CreateCommentDto {
@@ -9,6 +9,6 @@ export class CreateCommentDto {
   })
   content: string;
 
-  @IsInt({ message: 'Doit être un nombre entier' })
-  post_id: number;
+  @IsString({ message: 'Le slug doit être une chaîne de caractères' })
+  slug: string;
 }

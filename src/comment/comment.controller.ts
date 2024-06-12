@@ -9,10 +9,12 @@ import {
   Delete,
   UseInterceptors,
   ClassSerializerInterceptor,
+  Query,
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { Public } from '../lib/decorators/public.decorator';
 
 @Controller('comment')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -42,5 +44,29 @@ export class CommentController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.commentService.remove(+id);
+  }
+
+  @Get('post/:slug')
+  @Public()
+  getCommentsByPostSlug(
+    @Param('slug') slug: string,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    return this.commentService.getCommentsByPostSlug(slug, page, limit);
+  }
+
+  @Get('user/all')
+  @Public()
+  getCommentsReceviedByUserPosts(
+    @Req() req: any,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    return this.commentService.getCommentsReceviedByUserPosts(
+      req.user.id,
+      page,
+      limit,
+    );
   }
 }

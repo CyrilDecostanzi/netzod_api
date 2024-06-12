@@ -110,6 +110,15 @@ export class PostController {
     return this.postService.findPostsByUser(+req.user.id, page, limit);
   }
 
+  @Get('user/liked')
+  findPostsLikedByUser(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Req() req,
+  ) {
+    return this.postService.findPostsLikedByUser(+req.user.id, page, limit);
+  }
+
   @Get('detail/:slug')
   @Public()
   findBySlug(@Param('slug') slug: string, @Req() req) {
